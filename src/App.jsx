@@ -4,8 +4,8 @@ import './App.css'
 const stats = [
   { label: 'Vida', value: 86, tone: 'life' },
   { label: 'Gana / Sed', value: 54, tone: 'hunger' },
-  { label: 'Energía', value: 32, tone: 'energy', caption: 'Consumo de tokens' },
-  { label: 'Salud mental', value: 45, tone: 'sanity', caption: 'Aburrimiento, ansiedad…' },
+  { label: 'Energía', value: 32, tone: 'energy' },
+  { label: 'Salud mental', value: 45, tone: 'sanity' },
 ]
 
 const intelligences = [
@@ -67,7 +67,6 @@ function IntelligenceStat() {
           />
         </div>
         <p className="stat-caption stat-caption--toggle">
-          12 inteligencias
           <svg
             className={`stat-chevron ${open ? 'stat-chevron--open' : ''}`}
             viewBox="0 0 24 24"

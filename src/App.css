@@ -140,7 +140,7 @@
 .stat-caption--toggle {
   display: flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
 }
 
 .stat-chevron {
