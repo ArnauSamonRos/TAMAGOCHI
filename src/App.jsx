@@ -122,8 +122,8 @@ function Sidebar() {
         <StatBar {...stats[0]} />
         <StatBar {...stats[1]} />
         <StatBar {...stats[2]} />
-        <IntelligenceStat />
         <StatBar {...stats[3]} />
+        <IntelligenceStat />
       </div>
     </aside>
   )
