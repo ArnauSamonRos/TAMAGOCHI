@@ -1,6 +1,51 @@
 import { useState } from 'react'
 import './App.css'
 
+const stats = [
+  { label: 'Vida', value: 86, tone: 'life' },
+  { label: 'Gana / Sed', value: 54, tone: 'hunger' },
+  { label: 'Energía', value: 32, tone: 'energy', caption: 'Consumo de tokens' },
+  { label: 'Inteligencia', value: 68, tone: 'mind', caption: '12 inteligencias' },
+  { label: 'Salud mental', value: 45, tone: 'sanity', caption: 'Aburrimiento, ansiedad…' },
+]
+
+function StatBar({ label, value, tone, caption }) {
+  return (
+    <div className="stat">
+      <div className="stat-head">
+        <span className="stat-label">{label}</span>
+        <span className="stat-value">{value}</span>
+      </div>
+      <div className="stat-track">
+        <div
+          className={`stat-fill stat-fill--${tone}`}
+          style={{ width: `${value}%` }}
+        />
+      </div>
+      {caption && <p className="stat-caption">{caption}</p>}
+    </div>
+  )
+}
+
+function Sidebar() {
+  return (
+    <aside className="sidebar">
+      <div className="sidebar-header">
+        <div className="sidebar-avatar" aria-hidden="true">
+          🐣
+        </div>
+        <h1 className="sidebar-name">Paco Fiestas</h1>
+      </div>
+
+      <div className="sidebar-stats">
+        {stats.map((stat) => (
+          <StatBar key={stat.label} {...stat} />
+        ))}
+      </div>
+    </aside>
+  )
+}
+
 function App() {
   const [message, setMessage] = useState('')
 
@@ -12,6 +57,8 @@ function App() {
 
   return (
     <div className="app">
+      <Sidebar />
+
       <div className="composer-dock">
         <form className="composer" onSubmit={handleSubmit}>
           <svg
