@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import './App.css'
+import pacoImg from './assets/paco-fiestas.png'
 
 const stats = [
   { label: 'Vida', value: 86, tone: 'life' },
@@ -108,22 +109,29 @@ function IntelligenceStat() {
   )
 }
 
-function Sidebar() {
+function Sidebar({ expanded, onToggle }) {
   return (
-    <aside className="sidebar">
-      <div className="sidebar-header">
+    <aside className={`sidebar ${expanded ? 'sidebar--expanded' : 'sidebar--collapsed'}`}>
+      <button
+        type="button"
+        className="sidebar-header"
+        onClick={onToggle}
+        aria-expanded={expanded}
+      >
         <div className="sidebar-avatar" aria-hidden="true">
           🐣
         </div>
         <h1 className="sidebar-name">Paco Fiestas</h1>
-      </div>
+      </button>
 
-      <div className="sidebar-stats">
-        <StatBar {...stats[0]} />
-        <StatBar {...stats[1]} />
-        <StatBar {...stats[2]} />
-        <StatBar {...stats[3]} />
-        <IntelligenceStat />
+      <div className={`sidebar-stats-wrap ${expanded ? 'sidebar-stats-wrap--open' : ''}`}>
+        <div className="sidebar-stats">
+          <StatBar {...stats[0]} />
+          <StatBar {...stats[1]} />
+          <StatBar {...stats[2]} />
+          <StatBar {...stats[3]} />
+          <IntelligenceStat />
+        </div>
       </div>
     </aside>
   )
@@ -131,6 +139,7 @@ function Sidebar() {
 
 function App() {
   const [message, setMessage] = useState('')
+  const [expanded, setExpanded] = useState(false)
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -140,7 +149,16 @@ function App() {
 
   return (
     <div className="app">
-      <Sidebar />
+      <Sidebar expanded={expanded} onToggle={() => setExpanded((e) => !e)} />
+
+      <button
+        type="button"
+        className="pet-button"
+        onClick={() => setExpanded(true)}
+        aria-label="Ver estadísticas de Paco Fiestas"
+      >
+        <img className="pet-image" src={pacoImg} alt="Paco Fiestas" />
+      </button>
 
       <div className="composer-dock">
         <form className="composer" onSubmit={handleSubmit}>

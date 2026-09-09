@@ -10,7 +10,6 @@
   width: 280px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
   padding: 28px 24px;
   border-radius: 32px;
   background: rgba(255, 255, 255, 0.9);
@@ -21,40 +20,85 @@
     0 1px 2px rgba(0, 0, 0, 0.04),
     0 8px 24px rgba(0, 0, 0, 0.08),
     0 20px 48px rgba(0, 0, 0, 0.06);
+  transition: width 0.3s ease, padding 0.3s ease, border-radius 0.3s ease;
+}
+
+.sidebar--collapsed {
+  width: auto;
+  padding: 10px 16px;
+  border-radius: 999px;
 }
 
 .sidebar-header {
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 12px;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+}
+
+.sidebar--expanded .sidebar-header {
+  flex-direction: column;
   text-align: center;
 }
 
 .sidebar-avatar {
-  width: 88px;
-  height: 88px;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 44px;
+  font-size: 20px;
   border-radius: 50%;
   background: linear-gradient(180deg, #fdfaf4 0%, #f5f1ea 100%);
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+  transition: width 0.3s ease, height 0.3s ease, font-size 0.3s ease;
+}
+
+.sidebar--expanded .sidebar-avatar {
+  width: 88px;
+  height: 88px;
+  font-size: 44px;
 }
 
 .sidebar-name {
   margin: 0;
-  font-size: 24px;
+  font-size: 15px;
   font-weight: 600;
-  letter-spacing: -0.4px;
+  letter-spacing: -0.2px;
   color: #1d1d1f;
+  transition: font-size 0.3s ease;
+  white-space: nowrap;
+}
+
+.sidebar--expanded .sidebar-name {
+  font-size: 24px;
+  letter-spacing: -0.4px;
+}
+
+.sidebar-stats-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  transition: grid-template-rows 0.3s ease;
+}
+
+.sidebar-stats-wrap--open {
+  grid-template-rows: 1fr;
 }
 
 .sidebar-stats {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  min-height: 0;
+  padding-top: 28px;
 }
 
 .stat {
@@ -191,6 +235,33 @@
 
 .stat-track--sm {
   height: 5px;
+}
+
+.pet-button {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.pet-button:hover {
+  transform: translate(-50%, -50%) scale(1.03);
+}
+
+.pet-button:active {
+  transform: translate(-50%, -50%) scale(0.97);
+}
+
+.pet-image {
+  display: block;
+  width: min(320px, 60vw);
+  height: auto;
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.1));
 }
 
 .composer-dock {
