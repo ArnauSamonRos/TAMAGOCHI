@@ -5,9 +5,27 @@ const stats = [
   { label: 'Vida', value: 86, tone: 'life' },
   { label: 'Gana / Sed', value: 54, tone: 'hunger' },
   { label: 'Energía', value: 32, tone: 'energy', caption: 'Consumo de tokens' },
-  { label: 'Inteligencia', value: 68, tone: 'mind', caption: '12 inteligencias' },
   { label: 'Salud mental', value: 45, tone: 'sanity', caption: 'Aburrimiento, ansiedad…' },
 ]
+
+const intelligences = [
+  { label: 'Lingüística', value: 72 },
+  { label: 'Lógico-matemática', value: 81 },
+  { label: 'Espacial', value: 58 },
+  { label: 'Musical', value: 40 },
+  { label: 'Corporal-cinestésica', value: 35 },
+  { label: 'Intrapersonal', value: 66 },
+  { label: 'Interpersonal', value: 74 },
+  { label: 'Naturalista', value: 50 },
+  { label: 'Emocional', value: 69 },
+  { label: 'Creativa', value: 77 },
+  { label: 'Colaborativa', value: 63 },
+  { label: 'Existencial', value: 45 },
+]
+
+const intelligenceAverage = Math.round(
+  intelligences.reduce((sum, i) => sum + i.value, 0) / intelligences.length,
+)
 
 function StatBar({ label, value, tone, caption }) {
   return (
@@ -27,6 +45,70 @@ function StatBar({ label, value, tone, caption }) {
   )
 }
 
+function IntelligenceStat() {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <div className="stat">
+      <button
+        type="button"
+        className="stat-toggle"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+      >
+        <div className="stat-head">
+          <span className="stat-label">Inteligencia</span>
+          <span className="stat-value">{intelligenceAverage}</span>
+        </div>
+        <div className="stat-track">
+          <div
+            className="stat-fill stat-fill--mind"
+            style={{ width: `${intelligenceAverage}%` }}
+          />
+        </div>
+        <p className="stat-caption stat-caption--toggle">
+          12 inteligencias
+          <svg
+            className={`stat-chevron ${open ? 'stat-chevron--open' : ''}`}
+            viewBox="0 0 24 24"
+            width="12"
+            height="12"
+            aria-hidden="true"
+          >
+            <path
+              d="M6 9L12 15L18 9"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </p>
+      </button>
+
+      <div className={`intel-list ${open ? 'intel-list--open' : ''}`}>
+        <div className="intel-list-inner">
+          {intelligences.map((intel) => (
+            <div className="intel-item" key={intel.label}>
+              <div className="stat-head">
+                <span className="intel-label">{intel.label}</span>
+                <span className="intel-value">{intel.value}</span>
+              </div>
+              <div className="stat-track stat-track--sm">
+                <div
+                  className="stat-fill stat-fill--mind"
+                  style={{ width: `${intel.value}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function Sidebar() {
   return (
     <aside className="sidebar">
@@ -38,9 +120,11 @@ function Sidebar() {
       </div>
 
       <div className="sidebar-stats">
-        {stats.map((stat) => (
-          <StatBar key={stat.label} {...stat} />
-        ))}
+        <StatBar {...stats[0]} />
+        <StatBar {...stats[1]} />
+        <StatBar {...stats[2]} />
+        <IntelligenceStat />
+        <StatBar {...stats[3]} />
       </div>
     </aside>
   )
