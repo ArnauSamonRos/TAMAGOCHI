@@ -150,50 +150,131 @@
 .sidebar-stats {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
   min-height: 0;
-  padding-top: 28px;
+  padding-top: 24px;
 }
 
 .sidebar-section-label {
-  margin: -6px 0 -4px;
+  margin: -4px 0 -2px;
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.6px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
   text-transform: uppercase;
-  color: #b9b9bd;
+  color: #9a9aa3;
 }
 
 .stat {
   display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-stats > .stat:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.stat-icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  border-radius: 50%;
+  background: #f2f2f4;
+}
+
+.stat-icon--life {
+  background: rgba(255, 59, 48, 0.12);
+}
+
+.stat-icon--hunger {
+  background: rgba(255, 149, 0, 0.13);
+}
+
+.stat-icon--energy {
+  background: rgba(52, 199, 89, 0.13);
+}
+
+.stat-icon--mind {
+  background: rgba(10, 132, 255, 0.12);
+}
+
+.stat-icon--sanity {
+  background: rgba(175, 82, 222, 0.12);
+}
+
+.stat-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .stat-head {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
+  gap: 8px;
 }
 
 .stat-label {
-  font-size: 13px;
-  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13.5px;
+  font-weight: 700;
   letter-spacing: -0.1px;
   color: #1d1d1f;
 }
 
 .stat-value {
-  font-size: 12px;
-  font-weight: 500;
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
   color: #a6a6ab;
+  background: #f2f2f4;
+}
+
+.stat-value--life {
+  color: #ff3b30;
+  background: rgba(255, 59, 48, 0.12);
+}
+
+.stat-value--hunger {
+  color: #d97a00;
+  background: rgba(255, 149, 0, 0.13);
+}
+
+.stat-value--energy {
+  color: #248a3d;
+  background: rgba(52, 199, 89, 0.13);
+}
+
+.stat-value--mind {
+  color: #0a84ff;
+  background: rgba(10, 132, 255, 0.12);
+}
+
+.stat-value--sanity {
+  color: #af52de;
+  background: rgba(175, 82, 222, 0.12);
 }
 
 .stat-track {
   width: 100%;
-  height: 8px;
+  height: 9px;
   border-radius: 999px;
   background: #eeeef0;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
   overflow: hidden;
 }
 
@@ -242,12 +323,6 @@
   color: inherit;
 }
 
-.stat-caption--toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .stat-chevron {
   color: #a6a6ab;
   transition: transform 0.2s ease;
@@ -272,7 +347,7 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 11px;
   padding-top: 14px;
 }
 
@@ -286,13 +361,13 @@
 
 .intel-label {
   font-size: 11.5px;
-  font-weight: 500;
+  font-weight: 600;
   color: #55555a;
 }
 
 .intel-value {
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
   color: #a6a6ab;
 }
 

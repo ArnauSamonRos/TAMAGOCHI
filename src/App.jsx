@@ -165,10 +165,10 @@ function BouncingBall({ onClick, confused }) {
 }
 
 const stats = [
-  { label: 'Vida', value: 86, tone: 'life' },
-  { label: 'Gana / Sed', value: 54, tone: 'hunger' },
-  { label: 'Energía', value: 32, tone: 'energy' },
-  { label: 'Salud mental', value: 45, tone: 'sanity' },
+  { label: 'Vida', value: 86, tone: 'life', icon: '❤️' },
+  { label: 'Gana / Sed', value: 54, tone: 'hunger', icon: '🍗' },
+  { label: 'Energía', value: 32, tone: 'energy', icon: '⚡' },
+  { label: 'Salud mental', value: 45, tone: 'sanity', icon: '🧠' },
 ]
 
 const intelligences = [
@@ -190,20 +190,25 @@ const intelligenceAverage = Math.round(
   intelligences.reduce((sum, i) => sum + i.value, 0) / intelligences.length,
 )
 
-function StatBar({ label, value, tone, caption }) {
+function StatBar({ label, value, tone, icon, caption }) {
   return (
     <div className="stat">
-      <div className="stat-head">
-        <span className="stat-label">{label}</span>
-        <span className="stat-value">{value}</span>
+      <div className={`stat-icon stat-icon--${tone}`} aria-hidden="true">
+        {icon}
       </div>
-      <div className="stat-track">
-        <div
-          className={`stat-fill stat-fill--${tone}`}
-          style={{ width: `${value}%` }}
-        />
+      <div className="stat-body">
+        <div className="stat-head">
+          <span className="stat-label">{label}</span>
+          <span className={`stat-value stat-value--${tone}`}>{value}</span>
+        </div>
+        <div className="stat-track">
+          <div
+            className={`stat-fill stat-fill--${tone}`}
+            style={{ width: `${value}%` }}
+          />
+        </div>
+        {caption && <p className="stat-caption">{caption}</p>}
       </div>
-      {caption && <p className="stat-caption">{caption}</p>}
     </div>
   )
 }
@@ -213,58 +218,63 @@ function IntelligenceStat() {
 
   return (
     <div className="stat">
-      <button
-        type="button"
-        className="stat-toggle"
-        onClick={() => setOpen((o) => !o)}
-        aria-expanded={open}
-      >
-        <div className="stat-head">
-          <span className="stat-label">Inteligencia</span>
-          <span className="stat-value">{intelligenceAverage}</span>
-        </div>
-        <div className="stat-track">
-          <div
-            className="stat-fill stat-fill--mind"
-            style={{ width: `${intelligenceAverage}%` }}
-          />
-        </div>
-        <p className="stat-caption stat-caption--toggle">
-          <svg
-            className={`stat-chevron ${open ? 'stat-chevron--open' : ''}`}
-            viewBox="0 0 24 24"
-            width="12"
-            height="12"
-            aria-hidden="true"
-          >
-            <path
-              d="M6 9L12 15L18 9"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </p>
-      </button>
-
-      <div className={`intel-list ${open ? 'intel-list--open' : ''}`}>
-        <div className="intel-list-inner">
-          {intelligences.map((intel) => (
-            <div className="intel-item" key={intel.label}>
-              <div className="stat-head">
-                <span className="intel-label">{intel.label}</span>
-                <span className="intel-value">{intel.value}</span>
-              </div>
-              <div className="stat-track stat-track--sm">
-                <div
-                  className="stat-fill stat-fill--mind"
-                  style={{ width: `${intel.value}%` }}
+      <div className="stat-icon stat-icon--mind" aria-hidden="true">
+        🧩
+      </div>
+      <div className="stat-body">
+        <button
+          type="button"
+          className="stat-toggle"
+          onClick={() => setOpen((o) => !o)}
+          aria-expanded={open}
+        >
+          <div className="stat-head">
+            <span className="stat-label">
+              Inteligencia
+              <svg
+                className={`stat-chevron ${open ? 'stat-chevron--open' : ''}`}
+                viewBox="0 0 24 24"
+                width="12"
+                height="12"
+                aria-hidden="true"
+              >
+                <path
+                  d="M6 9L12 15L18 9"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
+              </svg>
+            </span>
+            <span className="stat-value stat-value--mind">{intelligenceAverage}</span>
+          </div>
+          <div className="stat-track">
+            <div
+              className="stat-fill stat-fill--mind"
+              style={{ width: `${intelligenceAverage}%` }}
+            />
+          </div>
+        </button>
+
+        <div className={`intel-list ${open ? 'intel-list--open' : ''}`}>
+          <div className="intel-list-inner">
+            {intelligences.map((intel) => (
+              <div className="intel-item" key={intel.label}>
+                <div className="stat-head">
+                  <span className="intel-label">{intel.label}</span>
+                  <span className="intel-value">{intel.value}</span>
+                </div>
+                <div className="stat-track stat-track--sm">
+                  <div
+                    className="stat-fill stat-fill--mind"
+                    style={{ width: `${intel.value}%` }}
+                  />
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>
