@@ -42,14 +42,18 @@ function bounceOffRect(x, y, vx, vy, rect) {
   return { x, y, vx, vy, hit: true }
 }
 
-function BouncingBall({ onClick }) {
+function BouncingBall({ onClick, confused }) {
   const wrapRef = useRef(null)
+  const tiltRef = useRef(null)
   const ballRef = useRef(null)
+  const bubbleRef = useRef(null)
 
   useEffect(() => {
     const wrap = wrapRef.current
+    const tilt = tiltRef.current
     const ball = ballRef.current
-    if (!wrap || !ball) return
+    const bubble = bubbleRef.current
+    if (!wrap || !tilt || !ball) return
 
     let x = window.innerWidth / 2 - BALL_SIZE / 2
     let y = window.innerHeight / 2 - BALL_SIZE / 2
@@ -116,8 +120,12 @@ function BouncingBall({ onClick }) {
         squashTimeout = setTimeout(() => ball.classList.remove('ball--squash'), 160)
       }
 
-      const tilt = Math.max(-10, Math.min(10, vx * 2.2))
-      wrap.style.transform = `translate(${x}px, ${y}px) rotate(${tilt}deg)`
+      const tiltDeg = Math.max(-10, Math.min(10, vx * 2.2))
+      wrap.style.transform = `translate(${x}px, ${y}px)`
+      tilt.style.transform = `rotate(${tiltDeg}deg)`
+      if (bubble) {
+        bubble.style.transform = `translate(${x + BALL_SIZE / 2 - 13}px, ${y - 30}px)`
+      }
 
       raf = requestAnimationFrame(tick)
     }
@@ -130,22 +138,29 @@ function BouncingBall({ onClick }) {
   }, [])
 
   return (
-    <button
-      ref={wrapRef}
-      type="button"
-      className="ball-wrap"
-      onClick={onClick}
-      aria-label="Ver estadísticas de Paco Fiestas"
-    >
-      <div ref={ballRef} className="ball">
-        <span className="ball-eye">
-          <span className="ball-pupil" />
-        </span>
-        <span className="ball-eye">
-          <span className="ball-pupil" />
-        </span>
+    <>
+      <div ref={bubbleRef} className={`ball-bubble ${confused ? 'ball-bubble--visible' : ''}`} aria-hidden="true">
+        ?
       </div>
-    </button>
+      <button
+        ref={wrapRef}
+        type="button"
+        className="ball-wrap"
+        onClick={onClick}
+        aria-label="Ver estadísticas de Paco Fiestas"
+      >
+        <div ref={tiltRef} className="ball-tilt">
+          <div ref={ballRef} className={`ball ${confused ? 'ball--confused' : ''}`}>
+            <span className="ball-eye">
+              <span className="ball-pupil" />
+            </span>
+            <span className="ball-eye">
+              <span className="ball-pupil" />
+            </span>
+          </div>
+        </div>
+      </button>
+    </>
   )
 }
 
@@ -313,7 +328,7 @@ function App() {
     <div className="app">
       <Sidebar expanded={expanded} onToggle={() => setExpanded((e) => !e)} />
 
-      <BouncingBall onClick={() => setExpanded(true)} />
+      <BouncingBall onClick={() => setExpanded(true)} confused={message.trim().length > 0} />
 
       <div className="composer-dock">
         <form className="composer" onSubmit={handleSubmit}>
