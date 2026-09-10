@@ -315,11 +315,20 @@ function App() {
   const [message, setMessage] = useState('')
   const [expanded, setExpanded] = useState(false)
 
+  const [reacting, setReacting] = useState(false)
+  const reactTimeoutRef = useRef(null)
+
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!message.trim()) return
     setMessage('')
+
+    setReacting(true)
+    clearTimeout(reactTimeoutRef.current)
+    reactTimeoutRef.current = setTimeout(() => setReacting(false), 3000)
   }
+
+  useEffect(() => () => clearTimeout(reactTimeoutRef.current), [])
 
   useEffect(() => {
     if (!expanded) return
@@ -338,7 +347,7 @@ function App() {
     <div className="app">
       <Sidebar expanded={expanded} onToggle={() => setExpanded((e) => !e)} />
 
-      <BouncingBall onClick={() => setExpanded(true)} confused={message.trim().length > 0} />
+      <BouncingBall onClick={() => setExpanded(true)} confused={reacting} />
 
       <div className="composer-dock">
         <form className="composer" onSubmit={handleSubmit}>
