@@ -25,8 +25,22 @@
 
 .sidebar--collapsed {
   width: auto;
-  padding: 10px 16px;
+  padding: 7px 16px 7px 7px;
   border-radius: 999px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.03),
+    0 4px 12px rgba(0, 0, 0, 0.05),
+    0 10px 24px rgba(0, 0, 0, 0.04);
+  transition: width 0.3s ease, padding 0.3s ease, border-radius 0.3s ease,
+    box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.sidebar--collapsed:hover {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 6px 16px rgba(0, 0, 0, 0.07),
+    0 14px 28px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
 }
 
 .sidebar-header {
@@ -49,12 +63,12 @@
 
 .sidebar-avatar {
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 16px;
   border-radius: 50%;
   background: linear-gradient(180deg, #fdfaf4 0%, #f5f1ea 100%);
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
@@ -69,9 +83,9 @@
 
 .sidebar-name {
   margin: 0;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: -0.2px;
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: -0.1px;
   color: #1d1d1f;
   transition: font-size 0.3s ease;
   white-space: nowrap;
