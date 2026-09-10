@@ -139,8 +139,8 @@ function BouncingBall({ onClick, confused }) {
 
   return (
     <>
-      <div ref={bubbleRef} className={`ball-bubble ${confused ? 'ball-bubble--visible' : ''}`} aria-hidden="true">
-        ?
+      <div ref={bubbleRef} className="ball-bubble-wrap" aria-hidden="true">
+        <div className={`ball-bubble ${confused ? 'ball-bubble--visible' : ''}`}>?</div>
       </div>
       <button
         ref={wrapRef}
