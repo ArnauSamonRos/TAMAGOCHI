@@ -4,11 +4,26 @@ import './App.css'
 const BALL_SIZE = 64
 const EDGE_MARGIN = 16
 const OBSTACLE_PADDING = 16
-const SPEED = 2.6
-const WANDER = 0.045
+const HOP_MIN_DIST = 55
+const HOP_MAX_DIST = 130
+const HOP_HEIGHT = 32
+const HOP_MS_PER_PX = 4.2
+const HOP_DURATION_MIN = 360
+const HOP_DURATION_MAX = 620
+const IDLE_MIN = 120
+const IDLE_MAX = 420
+const MAX_TILT = 16
 
-function bounceOffRect(x, y, vx, vy, rect) {
-  if (!rect) return { x, y, vx, vy }
+function easeInOutSine(t) {
+  return -(Math.cos(Math.PI * t) - 1) / 2
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max)
+}
+
+function pushOutOfRect(x, y, rect) {
+  if (!rect) return { x, y }
   const left = rect.left - OBSTACLE_PADDING
   const right = rect.right + OBSTACLE_PADDING
   const top = rect.top - OBSTACLE_PADDING
@@ -17,7 +32,7 @@ function bounceOffRect(x, y, vx, vy, rect) {
   const ballBottom = y + BALL_SIZE
 
   const overlaps = x < right && ballRight > left && y < bottom && ballBottom > top
-  if (!overlaps) return { x, y, vx, vy, hit: false }
+  if (!overlaps) return { x, y }
 
   const penLeft = ballRight - left
   const penRight = right - x
@@ -25,21 +40,34 @@ function bounceOffRect(x, y, vx, vy, rect) {
   const penBottom = bottom - y
   const minPen = Math.min(penLeft, penRight, penTop, penBottom)
 
-  if (minPen === penLeft) {
-    x = left - BALL_SIZE
-    vx = -Math.abs(vx)
-  } else if (minPen === penRight) {
-    x = right
-    vx = Math.abs(vx)
-  } else if (minPen === penTop) {
-    y = top - BALL_SIZE
-    vy = -Math.abs(vy)
-  } else {
-    y = bottom
-    vy = Math.abs(vy)
-  }
+  if (minPen === penLeft) return { x: left - BALL_SIZE, y }
+  if (minPen === penRight) return { x: right, y }
+  if (minPen === penTop) return { x, y: top - BALL_SIZE }
+  return { x, y: bottom }
+}
 
-  return { x, y, vx, vy, hit: true }
+function pickHopTarget(x, y) {
+  const maxX = window.innerWidth - BALL_SIZE - EDGE_MARGIN
+  const maxY = window.innerHeight - BALL_SIZE - EDGE_MARGIN
+  const sidebarRect = document.querySelector('.sidebar')?.getBoundingClientRect()
+  const composerRect = document.querySelector('.composer')?.getBoundingClientRect()
+
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const angle = Math.random() * Math.PI * 2
+    const dist = HOP_MIN_DIST + Math.random() * (HOP_MAX_DIST - HOP_MIN_DIST)
+    let tx = clamp(x + Math.cos(angle) * dist, EDGE_MARGIN, maxX)
+    let ty = clamp(y + Math.sin(angle) * dist, EDGE_MARGIN, maxY)
+
+    const p1 = pushOutOfRect(tx, ty, sidebarRect)
+    const p2 = pushOutOfRect(p1.x, p1.y, composerRect)
+    tx = clamp(p2.x, EDGE_MARGIN, maxX)
+    ty = clamp(p2.y, EDGE_MARGIN, maxY)
+
+    if (Math.hypot(tx - x, ty - y) > 8) {
+      return { x: tx, y: ty }
+    }
+  }
+  return { x, y }
 }
 
 function BouncingBall({ onClick, confused }) {
@@ -47,6 +75,11 @@ function BouncingBall({ onClick, confused }) {
   const tiltRef = useRef(null)
   const ballRef = useRef(null)
   const bubbleRef = useRef(null)
+  const confusedRef = useRef(confused)
+
+  useEffect(() => {
+    confusedRef.current = confused
+  }, [confused])
 
   useEffect(() => {
     const wrap = wrapRef.current
@@ -57,84 +90,70 @@ function BouncingBall({ onClick, confused }) {
 
     let x = window.innerWidth / 2 - BALL_SIZE / 2
     let y = window.innerHeight / 2 - BALL_SIZE / 2
-    const startAngle = Math.random() * Math.PI * 2
-    let vx = Math.cos(startAngle) * SPEED
-    let vy = Math.sin(startAngle) * SPEED
-    let squashTimeout
+    let phase = 'idle'
+    let phaseStart = performance.now()
+    let idleDuration = 300
+    let hopFrom = { x, y }
+    let hopTo = { x, y }
+    let hopDuration = 0
+    let tiltDeg = 0
     let raf
 
-    const tick = () => {
-      // gentle random wander so the path never looks mechanical
-      const angle = Math.atan2(vy, vx) + (Math.random() - 0.5) * WANDER
-      vx = Math.cos(angle) * SPEED
-      vy = Math.sin(angle) * SPEED
+    const tick = (now) => {
+      const elapsed = now - phaseStart
 
-      x += vx
-      y += vy
+      let bob = 0
 
-      const minX = EDGE_MARGIN
-      const maxX = window.innerWidth - BALL_SIZE - EDGE_MARGIN
-      const minY = EDGE_MARGIN
-      const maxY = window.innerHeight - BALL_SIZE - EDGE_MARGIN
+      if (phase === 'idle') {
+        bob = Math.sin(elapsed / 190) * 1.5
+        if (elapsed >= idleDuration) {
+          hopFrom = { x, y }
+          hopTo = pickHopTarget(x, y)
+          const dist = Math.hypot(hopTo.x - hopFrom.x, hopTo.y - hopFrom.y)
+          hopDuration = clamp(dist * HOP_MS_PER_PX, HOP_DURATION_MIN, HOP_DURATION_MAX)
+          tiltDeg = clamp(((hopTo.x - hopFrom.x) / dist || 0) * MAX_TILT, -MAX_TILT, MAX_TILT)
+          phase = 'hop'
+          phaseStart = now
+        }
+      } else {
+        const t = clamp(elapsed / hopDuration, 0, 1)
+        const horizT = easeInOutSine(t)
+        x = hopFrom.x + (hopTo.x - hopFrom.x) * horizT
+        y = hopFrom.y + (hopTo.y - hopFrom.y) * horizT - Math.sin(t * Math.PI) * HOP_HEIGHT
 
-      let hitWall = false
-      if (x <= minX) {
-        x = minX
-        vx = Math.abs(vx)
-        hitWall = true
-      } else if (x >= maxX) {
-        x = maxX
-        vx = -Math.abs(vx)
-        hitWall = true
-      }
-      if (y <= minY) {
-        y = minY
-        vy = Math.abs(vy)
-        hitWall = true
-      } else if (y >= maxY) {
-        y = maxY
-        vy = -Math.abs(vy)
-        hitWall = true
-      }
+        if (t < 0.12) {
+          ball.className = `ball ball--crouch ${confusedRef.current ? 'ball--confused' : ''}`
+        } else if (t < 0.85) {
+          ball.className = `ball ball--stretch ${confusedRef.current ? 'ball--confused' : ''}`
+        } else {
+          ball.className = `ball ${confusedRef.current ? 'ball--confused' : ''}`
+        }
 
-      const sidebarRect = document.querySelector('.sidebar')?.getBoundingClientRect()
-      const composerRect = document.querySelector('.composer')?.getBoundingClientRect()
-
-      let result = bounceOffRect(x, y, vx, vy, sidebarRect)
-      let hitObstacle = result.hit
-      x = result.x
-      y = result.y
-      vx = result.vx
-      vy = result.vy
-
-      result = bounceOffRect(x, y, vx, vy, composerRect)
-      hitObstacle = hitObstacle || result.hit
-      x = result.x
-      y = result.y
-      vx = result.vx
-      vy = result.vy
-
-      if (hitWall || hitObstacle) {
-        ball.classList.add('ball--squash')
-        clearTimeout(squashTimeout)
-        squashTimeout = setTimeout(() => ball.classList.remove('ball--squash'), 160)
+        if (t >= 1) {
+          x = hopTo.x
+          y = hopTo.y
+          phase = 'idle'
+          phaseStart = now
+          idleDuration = IDLE_MIN + Math.random() * (IDLE_MAX - IDLE_MIN)
+          tiltDeg = 0
+          ball.className = `ball ball--land ${confusedRef.current ? 'ball--confused' : ''}`
+          setTimeout(() => {
+            if (ball) ball.className = `ball ${confusedRef.current ? 'ball--confused' : ''}`
+          }, 140)
+        }
       }
 
-      const tiltDeg = Math.max(-10, Math.min(10, vx * 2.2))
-      wrap.style.transform = `translate(${x}px, ${y}px)`
+      wrap.style.transform = `translate(${x}px, ${y + bob}px)`
       tilt.style.transform = `rotate(${tiltDeg}deg)`
       if (bubble) {
-        bubble.style.transform = `translate(${x + BALL_SIZE / 2 - 13}px, ${y - 30}px)`
+        bubble.style.transform = `translate(${x + BALL_SIZE / 2 - 13}px, ${y + bob - 30}px)`
       }
 
       raf = requestAnimationFrame(tick)
     }
 
     raf = requestAnimationFrame(tick)
-    return () => {
-      cancelAnimationFrame(raf)
-      clearTimeout(squashTimeout)
-    }
+    return () => cancelAnimationFrame(raf)
   }, [])
 
   return (
