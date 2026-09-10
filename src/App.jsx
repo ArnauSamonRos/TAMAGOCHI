@@ -1,6 +1,92 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './App.css'
-import pacoImg from './assets/paco-fiestas.png'
+
+const BALL_SIZE = 64
+const FLOOR_MARGIN = 130
+const TOP_MARGIN = 16
+const SIDE_MARGIN = 16
+const GRAVITY = 0.55
+const RESTITUTION = 0.7
+
+function BouncingBall({ onClick }) {
+  const wrapRef = useRef(null)
+  const ballRef = useRef(null)
+
+  useEffect(() => {
+    const wrap = wrapRef.current
+    const ball = ballRef.current
+    if (!wrap || !ball) return
+
+    let x = window.innerWidth / 2 - BALL_SIZE / 2
+    let y = window.innerHeight / 2 - BALL_SIZE / 2
+    let vx = Math.random() > 0.5 ? 3 : -3
+    let vy = 0
+    let squashTimeout
+    let raf
+
+    const tick = () => {
+      vy += GRAVITY
+      x += vx
+      y += vy
+
+      const minX = SIDE_MARGIN
+      const maxX = window.innerWidth - BALL_SIZE - SIDE_MARGIN
+      const minY = TOP_MARGIN
+      const maxY = window.innerHeight - BALL_SIZE - FLOOR_MARGIN
+
+      if (x <= minX) {
+        x = minX
+        vx = Math.abs(vx)
+      } else if (x >= maxX) {
+        x = maxX
+        vx = -Math.abs(vx)
+      }
+
+      if (y >= maxY) {
+        y = maxY
+        if (Math.abs(vy) > 2) {
+          ball.classList.add('ball--squash')
+          clearTimeout(squashTimeout)
+          squashTimeout = setTimeout(() => ball.classList.remove('ball--squash'), 160)
+        }
+        vy = -vy * RESTITUTION
+      } else if (y <= minY) {
+        y = minY
+        vy = Math.abs(vy)
+      }
+
+      const tilt = Math.max(-10, Math.min(10, vx * 2.2))
+      wrap.style.transform = `translate(${x}px, ${y}px) rotate(${tilt}deg)`
+
+      raf = requestAnimationFrame(tick)
+    }
+
+    raf = requestAnimationFrame(tick)
+    return () => {
+      cancelAnimationFrame(raf)
+      clearTimeout(squashTimeout)
+    }
+  }, [])
+
+  return (
+    <button
+      ref={wrapRef}
+      type="button"
+      className="ball-wrap"
+      onClick={onClick}
+      aria-label="Ver estadísticas de Paco Fiestas"
+    >
+      <div ref={ballRef} className="ball">
+        <span className="ball-eye">
+          <span className="ball-pupil" />
+        </span>
+        <span className="ball-eye">
+          <span className="ball-pupil" />
+        </span>
+      </div>
+    </button>
+  )
+}
 
 const stats = [
   { label: 'Vida', value: 86, tone: 'life' },
@@ -151,14 +237,7 @@ function App() {
     <div className="app">
       <Sidebar expanded={expanded} onToggle={() => setExpanded((e) => !e)} />
 
-      <button
-        type="button"
-        className="pet-button"
-        onClick={() => setExpanded(true)}
-        aria-label="Ver estadísticas de Paco Fiestas"
-      >
-        <img className="pet-image" src={pacoImg} alt="Paco Fiestas" />
-      </button>
+      <BouncingBall onClick={() => setExpanded(true)} />
 
       <div className="composer-dock">
         <form className="composer" onSubmit={handleSubmit}>
