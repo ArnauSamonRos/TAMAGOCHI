@@ -294,6 +294,19 @@ function App() {
     setMessage('')
   }
 
+  useEffect(() => {
+    if (!expanded) return
+
+    const handlePointerDown = (e) => {
+      if (!e.target.closest('.sidebar')) {
+        setExpanded(false)
+      }
+    }
+
+    document.addEventListener('pointerdown', handlePointerDown)
+    return () => document.removeEventListener('pointerdown', handlePointerDown)
+  }, [expanded])
+
   return (
     <div className="app">
       <Sidebar expanded={expanded} onToggle={() => setExpanded((e) => !e)} />
