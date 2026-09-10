@@ -2,11 +2,45 @@ import { useEffect, useRef, useState } from 'react'
 import './App.css'
 
 const BALL_SIZE = 64
-const FLOOR_MARGIN = 130
-const TOP_MARGIN = 16
-const SIDE_MARGIN = 16
-const GRAVITY = 0.55
-const RESTITUTION = 0.7
+const EDGE_MARGIN = 16
+const OBSTACLE_PADDING = 16
+const SPEED = 2.6
+const WANDER = 0.045
+
+function bounceOffRect(x, y, vx, vy, rect) {
+  if (!rect) return { x, y, vx, vy }
+  const left = rect.left - OBSTACLE_PADDING
+  const right = rect.right + OBSTACLE_PADDING
+  const top = rect.top - OBSTACLE_PADDING
+  const bottom = rect.bottom + OBSTACLE_PADDING
+  const ballRight = x + BALL_SIZE
+  const ballBottom = y + BALL_SIZE
+
+  const overlaps = x < right && ballRight > left && y < bottom && ballBottom > top
+  if (!overlaps) return { x, y, vx, vy, hit: false }
+
+  const penLeft = ballRight - left
+  const penRight = right - x
+  const penTop = ballBottom - top
+  const penBottom = bottom - y
+  const minPen = Math.min(penLeft, penRight, penTop, penBottom)
+
+  if (minPen === penLeft) {
+    x = left - BALL_SIZE
+    vx = -Math.abs(vx)
+  } else if (minPen === penRight) {
+    x = right
+    vx = Math.abs(vx)
+  } else if (minPen === penTop) {
+    y = top - BALL_SIZE
+    vy = -Math.abs(vy)
+  } else {
+    y = bottom
+    vy = Math.abs(vy)
+  }
+
+  return { x, y, vx, vy, hit: true }
+}
 
 function BouncingBall({ onClick }) {
   const wrapRef = useRef(null)
@@ -19,40 +53,67 @@ function BouncingBall({ onClick }) {
 
     let x = window.innerWidth / 2 - BALL_SIZE / 2
     let y = window.innerHeight / 2 - BALL_SIZE / 2
-    let vx = Math.random() > 0.5 ? 3 : -3
-    let vy = 0
+    const startAngle = Math.random() * Math.PI * 2
+    let vx = Math.cos(startAngle) * SPEED
+    let vy = Math.sin(startAngle) * SPEED
     let squashTimeout
     let raf
 
     const tick = () => {
-      vy += GRAVITY
+      // gentle random wander so the path never looks mechanical
+      const angle = Math.atan2(vy, vx) + (Math.random() - 0.5) * WANDER
+      vx = Math.cos(angle) * SPEED
+      vy = Math.sin(angle) * SPEED
+
       x += vx
       y += vy
 
-      const minX = SIDE_MARGIN
-      const maxX = window.innerWidth - BALL_SIZE - SIDE_MARGIN
-      const minY = TOP_MARGIN
-      const maxY = window.innerHeight - BALL_SIZE - FLOOR_MARGIN
+      const minX = EDGE_MARGIN
+      const maxX = window.innerWidth - BALL_SIZE - EDGE_MARGIN
+      const minY = EDGE_MARGIN
+      const maxY = window.innerHeight - BALL_SIZE - EDGE_MARGIN
 
+      let hitWall = false
       if (x <= minX) {
         x = minX
         vx = Math.abs(vx)
+        hitWall = true
       } else if (x >= maxX) {
         x = maxX
         vx = -Math.abs(vx)
+        hitWall = true
       }
-
-      if (y >= maxY) {
-        y = maxY
-        if (Math.abs(vy) > 2) {
-          ball.classList.add('ball--squash')
-          clearTimeout(squashTimeout)
-          squashTimeout = setTimeout(() => ball.classList.remove('ball--squash'), 160)
-        }
-        vy = -vy * RESTITUTION
-      } else if (y <= minY) {
+      if (y <= minY) {
         y = minY
         vy = Math.abs(vy)
+        hitWall = true
+      } else if (y >= maxY) {
+        y = maxY
+        vy = -Math.abs(vy)
+        hitWall = true
+      }
+
+      const sidebarRect = document.querySelector('.sidebar')?.getBoundingClientRect()
+      const composerRect = document.querySelector('.composer')?.getBoundingClientRect()
+
+      let result = bounceOffRect(x, y, vx, vy, sidebarRect)
+      let hitObstacle = result.hit
+      x = result.x
+      y = result.y
+      vx = result.vx
+      vy = result.vy
+
+      result = bounceOffRect(x, y, vx, vy, composerRect)
+      hitObstacle = hitObstacle || result.hit
+      x = result.x
+      y = result.y
+      vx = result.vx
+      vy = result.vy
+
+      if (hitWall || hitObstacle) {
+        ball.classList.add('ball--squash')
+        clearTimeout(squashTimeout)
+        squashTimeout = setTimeout(() => ball.classList.remove('ball--squash'), 160)
       }
 
       const tilt = Math.max(-10, Math.min(10, vx * 2.2))
