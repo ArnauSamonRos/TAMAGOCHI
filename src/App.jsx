@@ -266,13 +266,15 @@ function Sidebar({ expanded, onToggle }) {
         aria-expanded={expanded}
       >
         <div className="sidebar-avatar" aria-hidden="true">
-          🐣
+          <span className="sidebar-avatar-eye" />
+          <span className="sidebar-avatar-eye" />
         </div>
         <h1 className="sidebar-name">Paco Fiestas</h1>
       </button>
 
       <div className={`sidebar-stats-wrap ${expanded ? 'sidebar-stats-wrap--open' : ''}`}>
         <div className="sidebar-stats">
+          <p className="sidebar-section-label">Estadísticas</p>
           <StatBar {...stats[0]} />
           <StatBar {...stats[1]} />
           <StatBar {...stats[2]} />
