@@ -159,6 +159,10 @@
   flex-direction: column;
   gap: 18px;
   min-height: 0;
+  overflow: hidden;
+}
+
+.sidebar-stats-wrap--open .sidebar-stats {
   padding-top: 24px;
 }
 
