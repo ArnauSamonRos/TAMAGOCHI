@@ -166,7 +166,7 @@ function BouncingBall({ onClick, confused }) {
         type="button"
         className="ball-wrap"
         onClick={onClick}
-        aria-label="Ver estadísticas de Paco Fiestas"
+        aria-label="Ver estadísticas"
       >
         <div ref={tiltRef} className="ball-tilt">
           <div ref={ballRef} className={`ball ${confused ? 'ball--confused' : ''}`}>
@@ -300,7 +300,7 @@ function IntelligenceStat() {
   )
 }
 
-function Sidebar({ expanded, onToggle }) {
+function Sidebar({ expanded, onToggle, name }) {
   return (
     <aside className={`sidebar ${expanded ? 'sidebar--expanded' : 'sidebar--collapsed'}`}>
       <button
@@ -313,7 +313,7 @@ function Sidebar({ expanded, onToggle }) {
           <span className="sidebar-avatar-eye" />
           <span className="sidebar-avatar-eye" />
         </div>
-        <h1 className="sidebar-name">Paco Fiestas</h1>
+        <h1 className="sidebar-name">{name}</h1>
         <svg
           className="sidebar-chevron"
           viewBox="0 0 24 24"
@@ -346,9 +346,150 @@ function Sidebar({ expanded, onToggle }) {
   )
 }
 
+const HATCH_CLICKS = 10
+const SPECKLE_TONES = ['life', 'hunger', 'energy', 'mind', 'sanity']
+const SPECKLES = [
+  { top: '28%', left: '32%', size: 7, tone: 0 },
+  { top: '48%', left: '64%', size: 6, tone: 3 },
+  { top: '62%', left: '38%', size: 5, tone: 2 },
+  { top: '38%', left: '54%', size: 4, tone: 4 },
+  { top: '58%', left: '58%', size: 5, tone: 1 },
+]
+
+function EggNest({ onHatch }) {
+  const [clicks, setClicks] = useState(0)
+  const [shakeKey, setShakeKey] = useState(0)
+  const [hatching, setHatching] = useState(false)
+
+  const handleClick = () => {
+    if (hatching) return
+    const next = clicks + 1
+    setClicks(next)
+    setShakeKey((k) => k + 1)
+
+    if (next >= HATCH_CLICKS) {
+      setHatching(true)
+      setTimeout(onHatch, 550)
+    }
+  }
+
+  return (
+    <div className="egg-scene">
+      <button
+        type="button"
+        className="egg-button"
+        onClick={handleClick}
+        aria-label="Toca el huevo para incubarlo"
+      >
+        <svg className="nest" viewBox="0 0 200 90" aria-hidden="true">
+          <ellipse cx="100" cy="60" rx="95" ry="26" fill="url(#nestBase)" />
+          <ellipse cx="100" cy="48" rx="78" ry="22" fill="url(#nestRim)" />
+          <defs>
+            <linearGradient id="nestBase" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#d9bd93" />
+              <stop offset="100%" stopColor="#c7a374" />
+            </linearGradient>
+            <linearGradient id="nestRim" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#f0dcb8" />
+              <stop offset="100%" stopColor="#dcbe8f" />
+            </linearGradient>
+          </defs>
+          {Array.from({ length: 16 }).map((_, i) => (
+            <ellipse
+              key={i}
+              cx={100 + Math.cos((i / 16) * Math.PI * 2) * 76}
+              cy={50 + Math.sin((i / 16) * Math.PI * 2) * 20}
+              rx="14"
+              ry="3.4"
+              fill="#b8935f"
+              opacity="0.55"
+              transform={`rotate(${(i / 16) * 360} ${
+                100 + Math.cos((i / 16) * Math.PI * 2) * 76
+              } ${50 + Math.sin((i / 16) * Math.PI * 2) * 20})`}
+            />
+          ))}
+        </svg>
+
+        <div key={shakeKey} className={`egg ${hatching ? 'egg--hatch' : 'egg--shake'}`}>
+          {SPECKLES.map((s, i) => (
+            <span
+              key={i}
+              className={`egg-speckle egg-speckle--${SPECKLE_TONES[s.tone]}`}
+              style={{ top: s.top, left: s.left, width: s.size, height: s.size }}
+            />
+          ))}
+          {clicks >= 3 && <span className="egg-crack egg-crack--1" />}
+          {clicks >= 6 && <span className="egg-crack egg-crack--2" />}
+          {clicks >= 9 && <span className="egg-crack egg-crack--3" />}
+        </div>
+      </button>
+
+      <div className="egg-progress" aria-hidden="true">
+        {Array.from({ length: HATCH_CLICKS }).map((_, i) => (
+          <span key={i} className={`egg-dot ${i < clicks ? 'egg-dot--filled' : ''}`} />
+        ))}
+      </div>
+      <p className="egg-hint">Toca el huevo para incubarlo</p>
+    </div>
+  )
+}
+
+function NamingModal({ onConfirm }) {
+  const [name, setName] = useState('')
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    const trimmed = name.trim()
+    if (!trimmed) return
+    onConfirm(trimmed)
+  }
+
+  return (
+    <div className="naming-overlay">
+      <form className="naming-card" onSubmit={handleSubmit}>
+        <div className="naming-avatar" aria-hidden="true">
+          <span className="sidebar-avatar-eye" />
+          <span className="sidebar-avatar-eye" />
+        </div>
+        <h2 className="naming-title">¡Ha nacido!</h2>
+        <p className="naming-subtitle">Ponle un nombre a tu nueva mascota</p>
+        <input
+          className="naming-input"
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Nombre"
+          maxLength={24}
+          autoFocus
+        />
+        <button className="naming-submit" type="submit" disabled={!name.trim()}>
+          ¡Listo!
+        </button>
+      </form>
+    </div>
+  )
+}
+
 function App() {
   const [message, setMessage] = useState('')
   const [expanded, setExpanded] = useState(false)
+
+  const [stage, setStage] = useState(() => localStorage.getItem('tamagochi:stage') || 'egg')
+  const [creatureName, setCreatureName] = useState(
+    () => localStorage.getItem('tamagochi:name') || '',
+  )
+
+  const handleHatch = () => {
+    setStage('naming')
+    localStorage.setItem('tamagochi:stage', 'naming')
+  }
+
+  const handleNameConfirm = (name) => {
+    setCreatureName(name)
+    setStage('alive')
+    localStorage.setItem('tamagochi:name', name)
+    localStorage.setItem('tamagochi:stage', 'alive')
+  }
 
   const [reacting, setReacting] = useState(false)
   const reactTimeoutRef = useRef(null)
@@ -378,12 +519,26 @@ function App() {
     return () => document.removeEventListener('pointerdown', handlePointerDown)
   }, [expanded])
 
+  const hasCreature = stage === 'alive'
+
   return (
     <div className="app">
-      <Sidebar expanded={expanded} onToggle={() => setExpanded((e) => !e)} />
+      {hasCreature && (
+        <Sidebar
+          expanded={expanded}
+          onToggle={() => setExpanded((e) => !e)}
+          name={creatureName}
+        />
+      )}
 
-      <BouncingBall onClick={() => setExpanded(true)} confused={reacting} />
+      {stage === 'egg' && <EggNest onHatch={handleHatch} />}
+      {stage === 'naming' && <NamingModal onConfirm={handleNameConfirm} />}
 
+      {hasCreature && (
+        <BouncingBall onClick={() => setExpanded(true)} confused={reacting} />
+      )}
+
+      {hasCreature && (
       <div className="composer-dock">
         <form className="composer" onSubmit={handleSubmit}>
           <svg
@@ -416,6 +571,7 @@ function App() {
           </button>
         </form>
       </div>
+      )}
     </div>
   )
 }
