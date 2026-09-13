@@ -484,6 +484,12 @@ function App() {
     localStorage.setItem('tamagochi:stage', 'naming')
   }
 
+  const handleReset = () => {
+    localStorage.removeItem('tamagochi:stage')
+    localStorage.removeItem('tamagochi:name')
+    window.location.reload()
+  }
+
   const handleNameConfirm = (name) => {
     setCreatureName(name)
     setStage('alive')
@@ -523,6 +529,25 @@ function App() {
 
   return (
     <div className="app">
+      <button
+        type="button"
+        className="reset-button"
+        onClick={handleReset}
+        aria-label="Reiniciar (volver al huevo)"
+        title="Reiniciar (volver al huevo)"
+      >
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+          <path
+            d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+
       {hasCreature && (
         <Sidebar
           expanded={expanded}
