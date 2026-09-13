@@ -605,36 +605,36 @@
   position: fixed;
   top: 50%;
   left: 50%;
+  width: 96px;
+  height: 122px;
   transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 18px;
+}
+
+.nest {
+  position: absolute;
+  top: 76px;
+  left: 50%;
+  width: 190px;
+  height: auto;
+  transform: translateX(-50%);
+  z-index: 0;
+  filter: drop-shadow(0 10px 14px rgba(120, 90, 40, 0.18));
 }
 
 .egg-button {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   padding: 0;
   border: none;
   background: none;
   cursor: pointer;
 }
 
-.nest {
-  width: 220px;
-  height: auto;
-  margin-top: -34px;
-  filter: drop-shadow(0 10px 14px rgba(120, 90, 40, 0.18));
-}
-
 .egg {
   position: relative;
-  width: 96px;
-  height: 122px;
-  margin-top: -58px;
+  width: 100%;
+  height: 100%;
   border-radius: 50% 50% 46% 46% / 62% 62% 38% 38%;
   background: radial-gradient(circle at 34% 24%, #fffdf9 0%, #f7f0df 55%, #ecdfc0 100%);
   box-shadow:
@@ -752,8 +752,13 @@
 }
 
 .egg-progress {
+  position: absolute;
+  top: 180px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   gap: 6px;
+  z-index: 1;
 }
 
 .egg-dot {
@@ -770,10 +775,16 @@
 }
 
 .egg-hint {
+  position: absolute;
+  top: 202px;
+  left: 50%;
+  transform: translateX(-50%);
   margin: 0;
   font-size: 13px;
   font-weight: 500;
   color: #a6a6ab;
+  white-space: nowrap;
+  z-index: 1;
 }
 
 .naming-overlay {

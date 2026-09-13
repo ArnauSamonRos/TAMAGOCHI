@@ -375,41 +375,41 @@ function EggNest({ onHatch }) {
 
   return (
     <div className="egg-scene">
+      <svg className="nest" viewBox="0 0 200 90" aria-hidden="true">
+        <ellipse cx="100" cy="60" rx="95" ry="26" fill="url(#nestBase)" />
+        <ellipse cx="100" cy="48" rx="78" ry="22" fill="url(#nestRim)" />
+        <defs>
+          <linearGradient id="nestBase" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#d9bd93" />
+            <stop offset="100%" stopColor="#c7a374" />
+          </linearGradient>
+          <linearGradient id="nestRim" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#f0dcb8" />
+            <stop offset="100%" stopColor="#dcbe8f" />
+          </linearGradient>
+        </defs>
+        {Array.from({ length: 16 }).map((_, i) => (
+          <ellipse
+            key={i}
+            cx={100 + Math.cos((i / 16) * Math.PI * 2) * 76}
+            cy={50 + Math.sin((i / 16) * Math.PI * 2) * 20}
+            rx="14"
+            ry="3.4"
+            fill="#b8935f"
+            opacity="0.55"
+            transform={`rotate(${(i / 16) * 360} ${
+              100 + Math.cos((i / 16) * Math.PI * 2) * 76
+            } ${50 + Math.sin((i / 16) * Math.PI * 2) * 20})`}
+          />
+        ))}
+      </svg>
+
       <button
         type="button"
         className="egg-button"
         onClick={handleClick}
         aria-label="Toca el huevo para incubarlo"
       >
-        <svg className="nest" viewBox="0 0 200 90" aria-hidden="true">
-          <ellipse cx="100" cy="60" rx="95" ry="26" fill="url(#nestBase)" />
-          <ellipse cx="100" cy="48" rx="78" ry="22" fill="url(#nestRim)" />
-          <defs>
-            <linearGradient id="nestBase" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#d9bd93" />
-              <stop offset="100%" stopColor="#c7a374" />
-            </linearGradient>
-            <linearGradient id="nestRim" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#f0dcb8" />
-              <stop offset="100%" stopColor="#dcbe8f" />
-            </linearGradient>
-          </defs>
-          {Array.from({ length: 16 }).map((_, i) => (
-            <ellipse
-              key={i}
-              cx={100 + Math.cos((i / 16) * Math.PI * 2) * 76}
-              cy={50 + Math.sin((i / 16) * Math.PI * 2) * 20}
-              rx="14"
-              ry="3.4"
-              fill="#b8935f"
-              opacity="0.55"
-              transform={`rotate(${(i / 16) * 360} ${
-                100 + Math.cos((i / 16) * Math.PI * 2) * 76
-              } ${50 + Math.sin((i / 16) * Math.PI * 2) * 20})`}
-            />
-          ))}
-        </svg>
-
         <div key={shakeKey} className={`egg ${hatching ? 'egg--hatch' : 'egg--shake'}`}>
           {SPECKLES.map((s, i) => (
             <span
