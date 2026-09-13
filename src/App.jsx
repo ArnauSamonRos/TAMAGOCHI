@@ -1,5 +1,23 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { blobatar } from 'blobatar'
+import { unsure } from 'blobatar/expression'
 import './App.css'
+
+function randomSeed() {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID()
+  }
+  return `seed-${Date.now()}-${Math.random().toString(36).slice(2)}`
+}
+
+function BlobFigure({ seed, expression, className }) {
+  const markup = useMemo(
+    () => blobatar(seed, { background: false, expression }),
+    [seed, expression],
+  )
+  // eslint-disable-next-line react/no-danger
+  return <div className={className} dangerouslySetInnerHTML={{ __html: markup }} />
+}
 
 const BALL_SIZE = 64
 const EDGE_MARGIN = 16
@@ -70,16 +88,11 @@ function pickHopTarget(x, y) {
   return { x, y }
 }
 
-function BouncingBall({ onClick, confused }) {
+function BouncingBall({ onClick, confused, seed }) {
   const wrapRef = useRef(null)
   const tiltRef = useRef(null)
   const ballRef = useRef(null)
   const bubbleRef = useRef(null)
-  const confusedRef = useRef(confused)
-
-  useEffect(() => {
-    confusedRef.current = confused
-  }, [confused])
 
   useEffect(() => {
     const wrap = wrapRef.current
@@ -122,11 +135,11 @@ function BouncingBall({ onClick, confused }) {
         y = hopFrom.y + (hopTo.y - hopFrom.y) * horizT - Math.sin(t * Math.PI) * HOP_HEIGHT
 
         if (t < 0.12) {
-          ball.className = `ball ball--crouch ${confusedRef.current ? 'ball--confused' : ''}`
+          ball.className = 'ball ball--crouch'
         } else if (t < 0.85) {
-          ball.className = `ball ball--stretch ${confusedRef.current ? 'ball--confused' : ''}`
+          ball.className = 'ball ball--stretch'
         } else {
-          ball.className = `ball ${confusedRef.current ? 'ball--confused' : ''}`
+          ball.className = 'ball'
         }
 
         if (t >= 1) {
@@ -136,9 +149,9 @@ function BouncingBall({ onClick, confused }) {
           phaseStart = now
           idleDuration = IDLE_MIN + Math.random() * (IDLE_MAX - IDLE_MIN)
           tiltDeg = 0
-          ball.className = `ball ball--land ${confusedRef.current ? 'ball--confused' : ''}`
+          ball.className = 'ball ball--land'
           setTimeout(() => {
-            if (ball) ball.className = `ball ${confusedRef.current ? 'ball--confused' : ''}`
+            if (ball) ball.className = 'ball'
           }, 140)
         }
       }
@@ -169,13 +182,12 @@ function BouncingBall({ onClick, confused }) {
         aria-label="Ver estadísticas"
       >
         <div ref={tiltRef} className="ball-tilt">
-          <div ref={ballRef} className={`ball ${confused ? 'ball--confused' : ''}`}>
-            <span className="ball-eye">
-              <span className="ball-pupil" />
-            </span>
-            <span className="ball-eye">
-              <span className="ball-pupil" />
-            </span>
+          <div ref={ballRef} className="ball">
+            <BlobFigure
+              seed={seed}
+              expression={confused ? unsure : undefined}
+              className="blob-figure"
+            />
           </div>
         </div>
       </button>
@@ -300,7 +312,7 @@ function IntelligenceStat() {
   )
 }
 
-function Sidebar({ expanded, onToggle, name }) {
+function Sidebar({ expanded, onToggle, name, seed }) {
   return (
     <aside className={`sidebar ${expanded ? 'sidebar--expanded' : 'sidebar--collapsed'}`}>
       <button
@@ -310,8 +322,7 @@ function Sidebar({ expanded, onToggle, name }) {
         aria-expanded={expanded}
       >
         <div className="sidebar-avatar" aria-hidden="true">
-          <span className="sidebar-avatar-eye" />
-          <span className="sidebar-avatar-eye" />
+          <BlobFigure seed={seed} className="blob-figure" />
         </div>
         <h1 className="sidebar-name">{name}</h1>
         <svg
@@ -434,7 +445,7 @@ function EggNest({ onHatch }) {
   )
 }
 
-function NamingModal({ onConfirm }) {
+function NamingModal({ onConfirm, seed }) {
   const [name, setName] = useState('')
 
   const handleSubmit = (e) => {
@@ -448,8 +459,7 @@ function NamingModal({ onConfirm }) {
     <div className="naming-overlay">
       <form className="naming-card" onSubmit={handleSubmit}>
         <div className="naming-avatar" aria-hidden="true">
-          <span className="sidebar-avatar-eye" />
-          <span className="sidebar-avatar-eye" />
+          <BlobFigure seed={seed} className="blob-figure" />
         </div>
         <h2 className="naming-title">¡Ha nacido!</h2>
         <p className="naming-subtitle">Ponle un nombre a tu nueva mascota</p>
@@ -478,15 +488,22 @@ function App() {
   const [creatureName, setCreatureName] = useState(
     () => localStorage.getItem('tamagochi:name') || '',
   )
+  const [creatureSeed, setCreatureSeed] = useState(
+    () => localStorage.getItem('tamagochi:seed') || '',
+  )
 
   const handleHatch = () => {
+    const seed = randomSeed()
+    setCreatureSeed(seed)
     setStage('naming')
+    localStorage.setItem('tamagochi:seed', seed)
     localStorage.setItem('tamagochi:stage', 'naming')
   }
 
   const handleReset = () => {
     localStorage.removeItem('tamagochi:stage')
     localStorage.removeItem('tamagochi:name')
+    localStorage.removeItem('tamagochi:seed')
     window.location.reload()
   }
 
@@ -553,14 +570,21 @@ function App() {
           expanded={expanded}
           onToggle={() => setExpanded((e) => !e)}
           name={creatureName}
+          seed={creatureSeed}
         />
       )}
 
       {stage === 'egg' && <EggNest onHatch={handleHatch} />}
-      {stage === 'naming' && <NamingModal onConfirm={handleNameConfirm} />}
+      {stage === 'naming' && (
+        <NamingModal onConfirm={handleNameConfirm} seed={creatureSeed} />
+      )}
 
       {hasCreature && (
-        <BouncingBall onClick={() => setExpanded(true)} confused={reacting} />
+        <BouncingBall
+          onClick={() => setExpanded(true)}
+          confused={reacting}
+          seed={creatureSeed}
+        />
       )}
 
       {hasCreature && (
