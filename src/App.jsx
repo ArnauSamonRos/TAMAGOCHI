@@ -29,7 +29,7 @@ const EDGE_MARGIN = 16
 const OBSTACLE_PADDING = 16
 const HOP_MIN_DIST = 100
 const HOP_MAX_DIST = 230
-const HOP_HEIGHT = 22
+const HOP_HEIGHT = 13
 const HOP_MS_PER_PX = 3.2
 const HOP_DURATION_MIN = 320
 const HOP_DURATION_MAX = 620
@@ -211,12 +211,14 @@ function BouncingBall({ onClick, confused, seed }) {
       }
       if (shadow) {
         const groundY = y + arcHeight
-        const shrink = clamp(1 - arcHeight / (hopHeight * 2.2), 0.68, 1)
+        const shrink = clamp(1 - arcHeight / (hopHeight * 3.2), 0.82, 1)
         const shadowCx = x + BALL_SIZE / 2
-        const shadowCy = groundY + BALL_SIZE * 0.92
+        // Follows most of the way up with the creature instead of staying
+        // pinned to the ground, so it never visibly detaches mid-hop.
+        const shadowCy = groundY + BALL_SIZE * 0.92 - arcHeight * 0.55
         shadow.style.transform =
           `translate(${shadowCx}px, ${shadowCy}px) translate(-50%, -50%) scale(${shrink})`
-        shadow.style.opacity = 0.5 * shrink
+        shadow.style.opacity = 0.55 * shrink
       }
 
       raf = requestAnimationFrame(tick)
