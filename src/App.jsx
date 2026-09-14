@@ -69,6 +69,7 @@ function pickHopTarget(x, y) {
   const maxY = window.innerHeight - BALL_SIZE - EDGE_MARGIN
   const sidebarRect = document.querySelector('.sidebar')?.getBoundingClientRect()
   const composerRect = document.querySelector('.composer')?.getBoundingClientRect()
+  const orbRect = document.querySelector('.orb-cluster')?.getBoundingClientRect()
 
   for (let attempt = 0; attempt < 8; attempt++) {
     const angle = Math.random() * Math.PI * 2
@@ -78,8 +79,9 @@ function pickHopTarget(x, y) {
 
     const p1 = pushOutOfRect(tx, ty, sidebarRect)
     const p2 = pushOutOfRect(p1.x, p1.y, composerRect)
-    tx = clamp(p2.x, EDGE_MARGIN, maxX)
-    ty = clamp(p2.y, EDGE_MARGIN, maxY)
+    const p3 = pushOutOfRect(p2.x, p2.y, orbRect)
+    tx = clamp(p3.x, EDGE_MARGIN, maxX)
+    ty = clamp(p3.y, EDGE_MARGIN, maxY)
 
     if (Math.hypot(tx - x, ty - y) > 8) {
       return { x: tx, y: ty }
@@ -196,10 +198,14 @@ function BouncingBall({ onClick, confused, seed }) {
 }
 
 const stats = [
-  { label: 'Vida', value: 86, tone: 'life', icon: '❤️' },
-  { label: 'Gana / Sed', value: 54, tone: 'hunger', icon: '🍗' },
   { label: 'Energía', value: 32, tone: 'energy', icon: '⚡' },
   { label: 'Salud mental', value: 45, tone: 'sanity', icon: '🧠' },
+]
+
+const orbStats = [
+  { label: 'Vida', value: 86, tone: 'life', icon: '❤️' },
+  { label: 'Hambre', value: 54, tone: 'hunger', icon: '🍗' },
+  { label: 'Sed', value: 68, tone: 'thirst', icon: '💧' },
 ]
 
 const intelligences = [
@@ -312,6 +318,32 @@ function IntelligenceStat() {
   )
 }
 
+function Orb({ label, value, tone, icon }) {
+  return (
+    <div className={`orb orb--${tone}`}>
+      <div className="orb-clip">
+        <div className="orb-fill" style={{ height: `${value}%` }} />
+        <span className="orb-icon" aria-hidden="true">
+          {icon}
+        </span>
+      </div>
+      <span className="orb-tooltip">
+        {label} · {value}%
+      </span>
+    </div>
+  )
+}
+
+function OrbCluster() {
+  return (
+    <div className="orb-cluster">
+      {orbStats.map((orb) => (
+        <Orb key={orb.label} {...orb} />
+      ))}
+    </div>
+  )
+}
+
 function Sidebar({ expanded, onToggle, name, seed }) {
   return (
     <aside className={`sidebar ${expanded ? 'sidebar--expanded' : 'sidebar--collapsed'}`}>
@@ -348,8 +380,6 @@ function Sidebar({ expanded, onToggle, name, seed }) {
           <p className="sidebar-section-label">Estadísticas</p>
           <StatBar {...stats[0]} />
           <StatBar {...stats[1]} />
-          <StatBar {...stats[2]} />
-          <StatBar {...stats[3]} />
           <IntelligenceStat />
         </div>
       </div>
@@ -573,6 +603,8 @@ function App() {
           seed={creatureSeed}
         />
       )}
+
+      {hasCreature && <OrbCluster />}
 
       {stage === 'egg' && <EggNest onHatch={handleHatch} />}
       {stage === 'naming' && (
