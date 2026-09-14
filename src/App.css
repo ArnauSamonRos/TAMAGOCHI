@@ -591,6 +591,44 @@
   }
 }
 
+.impact-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.impact-ring::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 66px;
+  height: 24px;
+  border: 2px solid rgba(96, 86, 62, 0.45);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0.4);
+  opacity: 0;
+}
+
+.impact-ring--play::before {
+  animation: impact-ring-pop 0.42s ease-out both;
+}
+
+@keyframes impact-ring-pop {
+  0% {
+    transform: translate(-50%, -50%) scale(0.4);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.7);
+    opacity: 0;
+  }
+}
+
 .ball-wrap {
   position: fixed;
   top: 0;
