@@ -37,6 +37,15 @@ const IDLE_MIN = 120
 const IDLE_MAX = 420
 const MAX_TILT = 16
 
+const DUST_PARTICLES = [
+  { dx: -34, dy: -10, size: 9, delay: 0 },
+  { dx: -18, dy: -20, size: 7, delay: 20 },
+  { dx: 2, dy: -24, size: 8, delay: 10 },
+  { dx: 20, dy: -18, size: 6, delay: 30 },
+  { dx: 34, dy: -8, size: 9, delay: 0 },
+  { dx: -8, dy: -14, size: 6, delay: 40 },
+]
+
 function easeInOutSine(t) {
   return -(Math.cos(Math.PI * t) - 1) / 2
 }
@@ -101,6 +110,7 @@ function BouncingBall({ onClick, confused, seed }) {
   const ballRef = useRef(null)
   const bubbleRef = useRef(null)
   const shadowRef = useRef(null)
+  const dustRef = useRef(null)
 
   useEffect(() => {
     const wrap = wrapRef.current
@@ -108,6 +118,7 @@ function BouncingBall({ onClick, confused, seed }) {
     const ball = ballRef.current
     const bubble = bubbleRef.current
     const shadow = shadowRef.current
+    const dust = dustRef.current
     if (!wrap || !tilt || !ball) return
 
     let x = window.innerWidth / 2 - BALL_SIZE / 2
@@ -118,8 +129,18 @@ function BouncingBall({ onClick, confused, seed }) {
     let hopFrom = { x, y }
     let hopTo = { x, y }
     let hopDuration = 0
+    let hopHeight = HOP_HEIGHT
     let tiltDeg = 0
     let raf
+
+    const spawnDust = (cx, cy) => {
+      if (!dust) return
+      dust.style.transform = `translate(${cx}px, ${cy}px) translate(-50%, -50%)`
+      dust.classList.remove('dust-burst--play')
+      // eslint-disable-next-line no-unused-expressions
+      dust.offsetWidth
+      dust.classList.add('dust-burst--play')
+    }
 
     const tick = (now) => {
       const elapsed = now - phaseStart
@@ -134,6 +155,7 @@ function BouncingBall({ onClick, confused, seed }) {
           hopTo = pickHopTarget(x, y)
           const dist = Math.hypot(hopTo.x - hopFrom.x, hopTo.y - hopFrom.y)
           hopDuration = clamp(dist * HOP_MS_PER_PX, HOP_DURATION_MIN, HOP_DURATION_MAX)
+          hopHeight = HOP_HEIGHT * (0.8 + Math.random() * 0.4)
           tiltDeg = clamp(((hopTo.x - hopFrom.x) / dist || 0) * MAX_TILT, -MAX_TILT, MAX_TILT)
           phase = 'hop'
           phaseStart = now
@@ -141,7 +163,7 @@ function BouncingBall({ onClick, confused, seed }) {
       } else {
         const t = clamp(elapsed / hopDuration, 0, 1)
         const horizT = easeInOutSine(t)
-        arcHeight = Math.sin(t * Math.PI) * HOP_HEIGHT
+        arcHeight = Math.sin(t * Math.PI) * hopHeight
         x = hopFrom.x + (hopTo.x - hopFrom.x) * horizT
         y = hopFrom.y + (hopTo.y - hopFrom.y) * horizT - arcHeight
 
@@ -161,6 +183,7 @@ function BouncingBall({ onClick, confused, seed }) {
           idleDuration = IDLE_MIN + Math.random() * (IDLE_MAX - IDLE_MIN)
           tiltDeg = 0
           ball.className = 'ball ball--land'
+          spawnDust(x + BALL_SIZE / 2, y + BALL_SIZE * 0.92)
           setTimeout(() => {
             if (ball) ball.className = 'ball'
           }, 140)
@@ -174,7 +197,7 @@ function BouncingBall({ onClick, confused, seed }) {
       }
       if (shadow) {
         const groundY = y + arcHeight
-        const shrink = clamp(1 - arcHeight / (HOP_HEIGHT * 2.2), 0.68, 1)
+        const shrink = clamp(1 - arcHeight / (hopHeight * 2.2), 0.68, 1)
         const shadowCx = x + BALL_SIZE / 2
         const shadowCy = groundY + BALL_SIZE * 0.92
         shadow.style.transform =
@@ -192,6 +215,21 @@ function BouncingBall({ onClick, confused, seed }) {
   return (
     <>
       <div ref={shadowRef} className="ball-shadow" aria-hidden="true" />
+      <div ref={dustRef} className="dust-burst" aria-hidden="true">
+        {DUST_PARTICLES.map((p, i) => (
+          <span
+            key={i}
+            className="dust-particle"
+            style={{
+              width: p.size,
+              height: p.size,
+              '--dx': `${p.dx}px`,
+              '--dy': `${p.dy}px`,
+              animationDelay: `${p.delay}ms`,
+            }}
+          />
+        ))}
+      </div>
       <div ref={bubbleRef} className="ball-bubble-wrap" aria-hidden="true">
         <div className={`ball-bubble ${confused ? 'ball-bubble--visible' : ''}`}>?</div>
       </div>
