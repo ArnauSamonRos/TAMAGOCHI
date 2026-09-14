@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { blobatar } from 'blobatar'
 import { unsure } from 'blobatar/expression'
+import terrainBg from './assets/terrain-bg.webp'
 import './App.css'
 
 function randomSeed() {
@@ -19,93 +20,8 @@ function BlobFigure({ seed, expression, className }) {
   return <div className={className} dangerouslySetInnerHTML={{ __html: markup }} />
 }
 
-const GRASS_PATCHES = [
-  // corners
-  { x: 70, y: 30, rx: 200, ry: 130, fill: '#9aa384', blades: [[10, -20, -10, 26], [200, -30, 12, 22], [90, 90, -18, 20]] },
-  { x: 1530, y: 40, rx: 190, ry: 140, fill: '#93987a', blades: [[1420, -10, -14, 24], [1600, 10, 16, 20], [1500, 110, -10, 22]] },
-  { x: 80, y: 870, rx: 210, ry: 130, fill: '#8d9674', blades: [[0, 830, -12, 26], [160, 800, 14, 22], [90, 940, -8, 20]] },
-  { x: 1560, y: 850, rx: 180, ry: 130, fill: '#9aa384', blades: [[1470, 800, -10, 24], [1620, 810, 12, 20]] },
-  // scattered mid patches
-  { x: 560, y: 190, rx: 95, ry: 55, fill: '#93987a', blades: [[540, 160, -14, 22], [590, 155, 10, 18]] },
-  { x: 320, y: 305, rx: 42, ry: 32, fill: '#8d9674', blades: [[315, 285, -8, 16]] },
-  { x: 1280, y: 320, rx: 70, ry: 48, fill: '#9aa384', blades: [[1265, 295, -10, 18]] },
-  { x: 1610, y: 390, rx: 45, ry: 38, fill: '#93987a', blades: [] },
-  { x: 700, y: 525, rx: 32, ry: 24, fill: '#8d9674', blades: [] },
-  { x: 930, y: 825, rx: 55, ry: 38, fill: '#9aa384', blades: [[915, 805, -8, 16]] },
-]
-
-const PEBBLES = [
-  [330, 95], [1180, 85], [1135, 160], [1085, 190], [555, 735], [350, 705],
-  [1400, 935], [1010, 785], [1040, 805], [620, 500], [680, 560], [1620, 350],
-  [270, 275], [1260, 285],
-]
-
-const ROCKS = [
-  { x: 155, y: 80, scale: 1.4 },
-  { x: 95, y: 150, scale: 0.45 },
-  { x: 1560, y: 95, scale: 1.5 },
-  { x: 1615, y: 130, scale: 0.5 },
-  { x: 305, y: 300, scale: 0.55 },
-  { x: 1290, y: 315, scale: 0.6 },
-  { x: 1010, y: 745, scale: 1.1 },
-  { x: 70, y: 850, scale: 1.7 },
-  { x: 195, y: 895, scale: 0.5 },
-  { x: 1540, y: 620, scale: 1.35 },
-]
-
-function Rock({ x, y, scale = 1 }) {
-  return (
-    <g transform={`translate(${x} ${y}) scale(${scale})`}>
-      <ellipse cx="0" cy="36" rx="40" ry="11" fill="rgba(50,50,46,0.16)" />
-      <polygon points="-32,8 -35,-8 -10,-24 16,-19 32,-2 24,17 -6,23" fill="#a9aba5" />
-      <polygon points="-32,8 -10,-24 -6,23" fill="#888a84" />
-      <polygon points="16,-19 32,-2 24,17 -6,23" fill="#c2c4be" />
-      <polygon points="-10,-24 16,-19 7,-5 -7,-3" fill="#dcddd7" />
-    </g>
-  )
-}
-
 function TerrainBackground() {
-  return (
-    <svg
-      className="terrain-bg"
-      viewBox="0 0 1600 900"
-      preserveAspectRatio="xMidYMid slice"
-      aria-hidden="true"
-    >
-      <defs>
-        <filter id="organicEdge" x="-20%" y="-20%" width="140%" height="140%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.014" numOctaves="2" seed="7" result="noise" />
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="22" />
-        </filter>
-      </defs>
-
-      <rect x="0" y="0" width="1600" height="900" fill="#efece1" />
-
-      {GRASS_PATCHES.map((p, i) => (
-        <g key={i}>
-          <ellipse cx={p.x} cy={p.y} rx={p.rx} ry={p.ry} fill={p.fill} filter="url(#organicEdge)" />
-          {p.blades.map(([bx, by, rot, h], j) => (
-            <polygon
-              key={j}
-              points={`${bx - 2},${by} ${bx + 2},${by} ${bx},${by - h}`}
-              fill="#5f6b4a"
-              opacity="0.75"
-              transform={`rotate(${rot} ${bx} ${by})`}
-            />
-          ))}
-        </g>
-      ))}
-
-      {PEBBLES.map(([px, py], i) => (
-        <ellipse key={i} cx={px} cy={py} rx="9" ry="6" fill="#b3b5ae" />
-      ))}
-
-      {ROCKS.map((r, i) => (
-        <Rock key={i} {...r} />
-      ))}
-    </svg>
-  )
+  return <div className="terrain-bg" style={{ backgroundImage: `url(${terrainBg})` }} aria-hidden="true" />
 }
 
 const BALL_SIZE = 128

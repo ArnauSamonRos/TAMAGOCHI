@@ -10,6 +10,9 @@
   height: 100svh;
   z-index: 0;
   pointer-events: none;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
 }
 
 .blob-figure {
