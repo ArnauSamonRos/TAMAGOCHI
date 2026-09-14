@@ -19,6 +19,88 @@ function BlobFigure({ seed, expression, className }) {
   return <div className={className} dangerouslySetInnerHTML={{ __html: markup }} />
 }
 
+const GRASS_PATCHES = [
+  { x: 90, y: 60, rx: 150, ry: 95, fill: '#9aa384', blades: [[40, 20, -10, 26], [70, 40, 15, 20]] },
+  { x: 40, y: 230, rx: 120, ry: 80, fill: '#8d9674', blades: [[10, 200, -8, 22]] },
+  { x: 330, y: 30, rx: 130, ry: 70, fill: '#93987a', blades: [[300, 10, -20, 18], [355, 15, 10, 22]] },
+  { x: 460, y: 260, rx: 90, ry: 70, fill: '#9aa384', blades: [[440, 220, -12, 24], [480, 235, 18, 18]] },
+  { x: 30, y: 470, rx: 160, ry: 110, fill: '#8d9674', blades: [[0, 430, -14, 26], [60, 400, 12, 20]] },
+  { x: 300, y: 520, rx: 70, ry: 55, fill: '#93987a', blades: [[290, 490, -6, 18]] },
+  { x: 640, y: 470, rx: 150, ry: 100, fill: '#9aa384', blades: [[610, 430, -10, 24], [680, 420, 16, 22]] },
+  { x: 850, y: 610, rx: 100, ry: 75, fill: '#8d9674', blades: [[830, 570, -12, 20]] },
+  { x: 200, y: 700, rx: 130, ry: 90, fill: '#93987a', blades: [[170, 660, -8, 22], [230, 650, 14, 18]] },
+  { x: 900, y: 120, rx: 110, ry: 85, fill: '#9aa384', blades: [[880, 80, -10, 22]] },
+]
+
+const PEBBLES = [
+  [230, 90], [255, 100], [560, 55], [590, 70], [620, 190], [640, 220],
+  [160, 340], [190, 360], [500, 560], [520, 590], [780, 380], [810, 400],
+  [420, 780], [720, 830], [300, 160],
+]
+
+const ROCKS = [
+  { x: 830, y: 130, scale: 1.5 },
+  { x: 980, y: 200, scale: 0.55 },
+  { x: 940, y: 590, scale: 1.2 },
+  { x: 60, y: 900, scale: 1.7 },
+  { x: 200, y: 940, scale: 0.6 },
+]
+
+function Rock({ x, y, scale = 1 }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${scale})`}>
+      <ellipse cx="0" cy="36" rx="40" ry="11" fill="rgba(50,50,46,0.16)" />
+      <polygon points="-32,8 -35,-8 -10,-24 16,-19 32,-2 24,17 -6,23" fill="#a9aba5" />
+      <polygon points="-32,8 -10,-24 -6,23" fill="#888a84" />
+      <polygon points="16,-19 32,-2 24,17 -6,23" fill="#c2c4be" />
+      <polygon points="-10,-24 16,-19 7,-5 -7,-3" fill="#dcddd7" />
+    </g>
+  )
+}
+
+function TerrainBackground() {
+  return (
+    <svg
+      className="terrain-bg"
+      viewBox="0 0 1000 1000"
+      preserveAspectRatio="xMidYMid slice"
+      aria-hidden="true"
+    >
+      <defs>
+        <filter id="organicEdge" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.014" numOctaves="2" seed="7" result="noise" />
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="22" />
+        </filter>
+      </defs>
+
+      <rect x="0" y="0" width="1000" height="1000" fill="#fbfbf9" />
+
+      {GRASS_PATCHES.map((p, i) => (
+        <g key={i}>
+          <ellipse cx={p.x} cy={p.y} rx={p.rx} ry={p.ry} fill={p.fill} filter="url(#organicEdge)" />
+          {p.blades.map(([bx, by, rot, h], j) => (
+            <polygon
+              key={j}
+              points={`${bx - 2},${by} ${bx + 2},${by} ${bx},${by - h}`}
+              fill="#5f6b4a"
+              opacity="0.75"
+              transform={`rotate(${rot} ${bx} ${by})`}
+            />
+          ))}
+        </g>
+      ))}
+
+      {PEBBLES.map(([px, py], i) => (
+        <ellipse key={i} cx={px} cy={py} rx="9" ry="6" fill="#b3b5ae" />
+      ))}
+
+      {ROCKS.map((r, i) => (
+        <Rock key={i} {...r} />
+      ))}
+    </svg>
+  )
+}
+
 const BALL_SIZE = 128
 const EDGE_MARGIN = 16
 const OBSTACLE_PADDING = 16
@@ -575,6 +657,8 @@ function App() {
 
   return (
     <div className="app">
+      <TerrainBackground />
+
       <button
         type="button"
         className="reset-button"

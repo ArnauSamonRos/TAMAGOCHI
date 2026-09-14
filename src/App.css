@@ -3,6 +3,15 @@
   min-height: 100svh;
 }
 
+.terrain-bg {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100svh;
+  z-index: 0;
+  pointer-events: none;
+}
+
 .blob-figure {
   display: flex;
 }
