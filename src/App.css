@@ -542,6 +542,20 @@
   height: 5px;
 }
 
+.ball-shadow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 108px;
+  height: 34px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(64, 58, 46, 0.55) 0%, rgba(64, 58, 46, 0) 72%);
+  filter: blur(1.5px);
+  z-index: 4;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
 .ball-wrap {
   position: fixed;
   top: 0;
@@ -573,7 +587,6 @@
 .ball .blob-figure {
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.16));
 }
 
 .ball--crouch {

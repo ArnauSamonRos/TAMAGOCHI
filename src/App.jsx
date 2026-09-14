@@ -100,12 +100,14 @@ function BouncingBall({ onClick, confused, seed }) {
   const tiltRef = useRef(null)
   const ballRef = useRef(null)
   const bubbleRef = useRef(null)
+  const shadowRef = useRef(null)
 
   useEffect(() => {
     const wrap = wrapRef.current
     const tilt = tiltRef.current
     const ball = ballRef.current
     const bubble = bubbleRef.current
+    const shadow = shadowRef.current
     if (!wrap || !tilt || !ball) return
 
     let x = window.innerWidth / 2 - BALL_SIZE / 2
@@ -123,6 +125,7 @@ function BouncingBall({ onClick, confused, seed }) {
       const elapsed = now - phaseStart
 
       let bob = 0
+      let arcHeight = 0
 
       if (phase === 'idle') {
         bob = Math.sin(elapsed / 190) * 1.5
@@ -138,8 +141,9 @@ function BouncingBall({ onClick, confused, seed }) {
       } else {
         const t = clamp(elapsed / hopDuration, 0, 1)
         const horizT = easeInOutSine(t)
+        arcHeight = Math.sin(t * Math.PI) * HOP_HEIGHT
         x = hopFrom.x + (hopTo.x - hopFrom.x) * horizT
-        y = hopFrom.y + (hopTo.y - hopFrom.y) * horizT - Math.sin(t * Math.PI) * HOP_HEIGHT
+        y = hopFrom.y + (hopTo.y - hopFrom.y) * horizT - arcHeight
 
         if (t < 0.12) {
           ball.className = 'ball ball--crouch'
@@ -168,6 +172,15 @@ function BouncingBall({ onClick, confused, seed }) {
       if (bubble) {
         bubble.style.transform = `translate(${x + BALL_SIZE / 2 - 16}px, ${y + bob - 40}px)`
       }
+      if (shadow) {
+        const groundY = y + arcHeight
+        const shrink = clamp(1 - arcHeight / (HOP_HEIGHT * 1.6), 0.55, 1)
+        const shadowCx = x + BALL_SIZE / 2
+        const shadowCy = groundY + BALL_SIZE * 0.92
+        shadow.style.transform =
+          `translate(${shadowCx}px, ${shadowCy}px) translate(-50%, -50%) scale(${shrink})`
+        shadow.style.opacity = 0.5 * shrink
+      }
 
       raf = requestAnimationFrame(tick)
     }
@@ -178,6 +191,7 @@ function BouncingBall({ onClick, confused, seed }) {
 
   return (
     <>
+      <div ref={shadowRef} className="ball-shadow" aria-hidden="true" />
       <div ref={bubbleRef} className="ball-bubble-wrap" aria-hidden="true">
         <div className={`ball-bubble ${confused ? 'ball-bubble--visible' : ''}`}>?</div>
       </div>
