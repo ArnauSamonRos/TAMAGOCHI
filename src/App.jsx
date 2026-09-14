@@ -203,9 +203,9 @@ const stats = [
 ]
 
 const orbStats = [
-  { label: 'Vida', value: 86, tone: 'life', icon: '❤️' },
-  { label: 'Hambre', value: 54, tone: 'hunger', icon: '🍗' },
-  { label: 'Sed', value: 68, tone: 'thirst', icon: '💧' },
+  { label: 'Vida', value: 86, tone: 'life' },
+  { label: 'Hambre', value: 54, tone: 'hunger' },
+  { label: 'Sed', value: 68, tone: 'thirst' },
 ]
 
 const intelligences = [
@@ -318,18 +318,13 @@ function IntelligenceStat() {
   )
 }
 
-function Orb({ label, value, tone, icon }) {
+function Orb({ label, value, tone }) {
   return (
-    <div className={`orb orb--${tone}`}>
+    <div className={`orb orb--${tone}`} aria-label={`${label}: ${value}%`}>
       <div className="orb-clip">
         <div className="orb-fill" style={{ height: `${value}%` }} />
-        <span className="orb-icon" aria-hidden="true">
-          {icon}
-        </span>
+        <span className="orb-percent">{value}%</span>
       </div>
-      <span className="orb-tooltip">
-        {label} · {value}%
-      </span>
     </div>
   )
 }
