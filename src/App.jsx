@@ -38,14 +38,16 @@ const IDLE_MAX = 420
 const MAX_TILT = 16
 
 const DUST_PARTICLES = [
-  { dx: -42, dy: -6, size: 10, delay: 0 },
-  { dx: -30, dy: -22, size: 6, delay: 25 },
-  { dx: -12, dy: -28, size: 8, delay: 10 },
-  { dx: 8, dy: -30, size: 7, delay: 15 },
-  { dx: 26, dy: -22, size: 9, delay: 35 },
-  { dx: 42, dy: -4, size: 10, delay: 0 },
-  { dx: -20, dy: 4, size: 6, delay: 45 },
-  { dx: 20, dy: 6, size: 6, delay: 45 },
+  { dx: -48, dy: -8, size: 11, delay: 0 },
+  { dx: -34, dy: -24, size: 7, delay: 25 },
+  { dx: -14, dy: -30, size: 9, delay: 10 },
+  { dx: 10, dy: -32, size: 8, delay: 15 },
+  { dx: 30, dy: -24, size: 10, delay: 35 },
+  { dx: 48, dy: -6, size: 11, delay: 0 },
+  { dx: -24, dy: 6, size: 7, delay: 45 },
+  { dx: 24, dy: 8, size: 7, delay: 45 },
+  { dx: -6, dy: -18, size: 6, delay: 55 },
+  { dx: 6, dy: -16, size: 6, delay: 55 },
 ]
 
 function easeInOutSine(t) {
