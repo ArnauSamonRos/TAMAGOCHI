@@ -322,7 +322,10 @@ function Orb({ label, value, tone }) {
   return (
     <div className={`orb orb--${tone}`} aria-label={`${label}: ${value}%`}>
       <div className="orb-clip">
-        <div className="orb-fill" style={{ height: `${value}%` }} />
+        <div className="orb-fill" style={{ height: `${value}%` }}>
+          <span className="orb-wave-strip orb-wave-strip--1" />
+          <span className="orb-wave-strip orb-wave-strip--2" />
+        </div>
         <span className="orb-percent">{value}%</span>
       </div>
     </div>
