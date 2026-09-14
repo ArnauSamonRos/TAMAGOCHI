@@ -115,6 +115,11 @@ function BouncingBall({ onClick, confused, seed }) {
   const bubbleRef = useRef(null)
   const shadowRef = useRef(null)
   const dustRef = useRef(null)
+  const pausedRef = useRef(confused)
+
+  useEffect(() => {
+    pausedRef.current = confused
+  }, [confused])
 
   useEffect(() => {
     const wrap = wrapRef.current
@@ -154,7 +159,7 @@ function BouncingBall({ onClick, confused, seed }) {
 
       if (phase === 'idle') {
         bob = Math.sin(elapsed / 190) * 1.5
-        if (elapsed >= idleDuration) {
+        if (elapsed >= idleDuration && !pausedRef.current) {
           hopFrom = { x, y }
           hopTo = pickHopTarget(x, y)
           const dist = Math.hypot(hopTo.x - hopFrom.x, hopTo.y - hopFrom.y)
