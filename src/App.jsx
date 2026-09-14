@@ -19,7 +19,7 @@ function BlobFigure({ seed, expression, className }) {
   return <div className={className} dangerouslySetInnerHTML={{ __html: markup }} />
 }
 
-const BALL_SIZE = 64
+const BALL_SIZE = 128
 const EDGE_MARGIN = 16
 const OBSTACLE_PADDING = 16
 const HOP_MIN_DIST = 55
@@ -161,7 +161,7 @@ function BouncingBall({ onClick, confused, seed }) {
       wrap.style.transform = `translate(${x}px, ${y + bob}px)`
       tilt.style.transform = `rotate(${tiltDeg}deg)`
       if (bubble) {
-        bubble.style.transform = `translate(${x + BALL_SIZE / 2 - 13}px, ${y + bob - 30}px)`
+        bubble.style.transform = `translate(${x + BALL_SIZE / 2 - 16}px, ${y + bob - 40}px)`
       }
 
       raf = requestAnimationFrame(tick)
