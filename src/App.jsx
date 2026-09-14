@@ -326,6 +326,7 @@ function Orb({ label, value, tone }) {
           <span className="orb-wave-strip orb-wave-strip--1" />
           <span className="orb-wave-strip orb-wave-strip--2" />
         </div>
+        <span className="orb-sheen" aria-hidden="true" />
         <span className="orb-percent">{value}%</span>
       </div>
     </div>

@@ -289,19 +289,24 @@
 
 .orb-cluster {
   position: fixed;
-  top: 22px;
-  right: 76px;
+  top: 20px;
+  right: 78px;
   display: flex;
   flex-direction: row;
-  gap: 12px;
+  gap: 14px;
   z-index: 5;
 }
 
 .orb {
   position: relative;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   cursor: default;
+  transition: transform 0.2s ease;
+}
+
+.orb:hover {
+  transform: translateY(-2px);
 }
 
 .orb-clip {
@@ -310,12 +315,42 @@
   height: 100%;
   border-radius: 50%;
   overflow: hidden;
-  background: #eeeef0;
+  background: radial-gradient(circle at 32% 24%, #ffffff 0%, #f1f2f5 60%, #e6e7eb 100%);
   box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.04),
-    0 8px 18px rgba(0, 0, 0, 0.1),
-    inset 0 2px 3px rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(0, 0, 0, 0.04);
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    0 10px 20px rgba(0, 0, 0, 0.1),
+    inset 0 1px 2px rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.orb--life .orb-clip {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    0 10px 18px rgba(255, 59, 48, 0.28),
+    inset 0 1px 2px rgba(255, 255, 255, 0.9);
+}
+
+.orb--hunger .orb-clip {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    0 10px 18px rgba(255, 149, 0, 0.28),
+    inset 0 1px 2px rgba(255, 255, 255, 0.9);
+}
+
+.orb--thirst .orb-clip {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    0 10px 18px rgba(10, 132, 255, 0.28),
+    inset 0 1px 2px rgba(255, 255, 255, 0.9);
+}
+
+.orb-sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 22%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0) 42%);
+  pointer-events: none;
+  z-index: 2;
 }
 
 .orb-fill {
@@ -399,22 +434,29 @@
 .orb-percent {
   position: absolute;
   inset: 0;
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.32);
+  background: rgba(20, 22, 28, 0.4);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
   font-family: var(--font-display);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
+  letter-spacing: 0.2px;
   color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
   opacity: 0;
-  transition: opacity 0.15s ease;
+  transform: scale(0.85);
+  transition: opacity 0.18s ease, transform 0.18s ease;
   pointer-events: none;
 }
 
 .orb:hover .orb-percent {
   opacity: 1;
+  transform: scale(1);
 }
 
 .stat-caption {
