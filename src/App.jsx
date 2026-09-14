@@ -113,7 +113,6 @@ function BouncingBall({ onClick, confused, seed }) {
   const bubbleRef = useRef(null)
   const shadowRef = useRef(null)
   const dustRef = useRef(null)
-  const impactRef = useRef(null)
 
   useEffect(() => {
     const wrap = wrapRef.current
@@ -122,7 +121,6 @@ function BouncingBall({ onClick, confused, seed }) {
     const bubble = bubbleRef.current
     const shadow = shadowRef.current
     const dust = dustRef.current
-    const impact = impactRef.current
     if (!wrap || !tilt || !ball) return
 
     let x = window.innerWidth / 2 - BALL_SIZE / 2
@@ -144,15 +142,6 @@ function BouncingBall({ onClick, confused, seed }) {
       // eslint-disable-next-line no-unused-expressions
       dust.offsetWidth
       dust.classList.add('dust-burst--play')
-    }
-
-    const spawnImpact = (cx, cy) => {
-      if (!impact) return
-      impact.style.transform = `translate(${cx}px, ${cy}px) translate(-50%, -50%)`
-      impact.classList.remove('impact-ring--play')
-      // eslint-disable-next-line no-unused-expressions
-      impact.offsetWidth
-      impact.classList.add('impact-ring--play')
     }
 
     const tick = (now) => {
@@ -197,7 +186,6 @@ function BouncingBall({ onClick, confused, seed }) {
           tiltDeg = 0
           ball.className = 'ball ball--land'
           spawnDust(x + BALL_SIZE / 2, y + BALL_SIZE * 0.92)
-          spawnImpact(x + BALL_SIZE / 2, y + BALL_SIZE * 0.92)
           setTimeout(() => {
             if (ball) ball.className = 'ball'
           }, 140)
@@ -231,7 +219,6 @@ function BouncingBall({ onClick, confused, seed }) {
   return (
     <>
       <div ref={shadowRef} className="ball-shadow" aria-hidden="true" />
-      <div ref={impactRef} className="impact-ring" aria-hidden="true" />
       <div ref={dustRef} className="dust-burst" aria-hidden="true">
         {DUST_PARTICLES.map((p, i) => (
           <span
