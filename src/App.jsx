@@ -27,11 +27,11 @@ function TerrainBackground() {
 const BALL_SIZE = 128
 const EDGE_MARGIN = 16
 const OBSTACLE_PADDING = 16
-const HOP_MIN_DIST = 55
-const HOP_MAX_DIST = 130
-const HOP_HEIGHT = 32
-const HOP_MS_PER_PX = 4.2
-const HOP_DURATION_MIN = 360
+const HOP_MIN_DIST = 100
+const HOP_MAX_DIST = 230
+const HOP_HEIGHT = 46
+const HOP_MS_PER_PX = 3.2
+const HOP_DURATION_MIN = 320
 const HOP_DURATION_MAX = 620
 const IDLE_MIN = 120
 const IDLE_MAX = 420
@@ -174,7 +174,7 @@ function BouncingBall({ onClick, confused, seed }) {
       }
       if (shadow) {
         const groundY = y + arcHeight
-        const shrink = clamp(1 - arcHeight / (HOP_HEIGHT * 1.6), 0.55, 1)
+        const shrink = clamp(1 - arcHeight / (HOP_HEIGHT * 2.2), 0.68, 1)
         const shadowCx = x + BALL_SIZE / 2
         const shadowCy = groundY + BALL_SIZE * 0.92
         shadow.style.transform =
