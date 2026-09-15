@@ -25,6 +25,10 @@
   display: block;
 }
 
+.blob-figure--hide-eyes svg g:last-child {
+  display: none;
+}
+
 .sidebar {
   position: fixed;
   top: 24px;

@@ -413,7 +413,7 @@ function BouncingBall({ onClick, confused, seed }) {
             <BlobFigure
               seed={seed}
               expression={confused ? unsure : undefined}
-              className="blob-figure"
+              className={`blob-figure ${dizzy ? 'blob-figure--hide-eyes' : ''}`}
             />
             {dizzy && <DizzyEyes />}
           </div>
