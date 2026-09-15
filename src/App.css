@@ -752,20 +752,9 @@
   position: fixed;
   top: 50%;
   left: 50%;
-  width: 96px;
-  height: 122px;
+  width: 300px;
+  aspect-ratio: 1413 / 847;
   transform: translate(-50%, -50%);
-}
-
-.nest {
-  position: absolute;
-  top: 76px;
-  left: 50%;
-  width: 190px;
-  height: auto;
-  transform: translateX(-50%);
-  z-index: 0;
-  filter: drop-shadow(0 10px 14px rgba(120, 90, 40, 0.18));
 }
 
 .egg-button {
@@ -782,12 +771,10 @@
   position: relative;
   width: 100%;
   height: 100%;
-  border-radius: 50% 50% 46% 46% / 62% 62% 38% 38%;
-  background: radial-gradient(circle at 34% 24%, #fffdf9 0%, #f7f0df 55%, #ecdfc0 100%);
-  box-shadow:
-    0 16px 26px rgba(150, 120, 70, 0.2),
-    inset 0 -10px 14px rgba(210, 180, 130, 0.3),
-    inset 0 8px 12px rgba(255, 255, 255, 0.7);
+  background-size: contain;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 14px 18px rgba(120, 90, 40, 0.2));
 }
 
 .egg--shake {
@@ -831,60 +818,35 @@
   }
 }
 
-.egg-speckle {
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0.6;
-}
-
-.egg-speckle--life {
-  background: #ff8a80;
-}
-
-.egg-speckle--hunger {
-  background: #ffc069;
-}
-
-.egg-speckle--energy {
-  background: #7bdb96;
-}
-
-.egg-speckle--mind {
-  background: #7fc3fb;
-}
-
-.egg-speckle--sanity {
-  background: #d9a3f2;
-}
-
 .egg-crack {
   position: absolute;
-  background: rgba(120, 96, 60, 0.55);
+  background: rgba(90, 68, 40, 0.85);
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.6));
   clip-path: polygon(50% 0%, 62% 22%, 48% 38%, 64% 56%, 46% 72%, 58% 100%, 50% 100%, 38% 74%, 56% 58%, 40% 40%, 54% 24%, 42% 0%);
   animation: crack-in 0.3s ease-out both;
 }
 
 .egg-crack--1 {
-  top: 14%;
-  left: 30%;
-  width: 14px;
-  height: 46px;
+  top: 32%;
+  left: 44%;
+  width: 13px;
+  height: 40px;
   transform: rotate(-8deg);
 }
 
 .egg-crack--2 {
-  top: 30%;
-  left: 58%;
-  width: 12px;
-  height: 38px;
+  top: 42%;
+  left: 54%;
+  width: 11px;
+  height: 32px;
   transform: rotate(12deg);
 }
 
 .egg-crack--3 {
-  top: 50%;
-  left: 42%;
+  top: 54%;
+  left: 47%;
   width: 10px;
-  height: 34px;
+  height: 30px;
   transform: rotate(-4deg);
 }
 
@@ -900,7 +862,7 @@
 
 .egg-progress {
   position: absolute;
-  top: 180px;
+  top: calc(100% + 14px);
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -923,7 +885,7 @@
 
 .egg-hint {
   position: absolute;
-  top: 202px;
+  top: calc(100% + 36px);
   left: 50%;
   transform: translateX(-50%);
   margin: 0;
