@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { blobatar } from 'blobatar'
 import { unsure } from 'blobatar/expression'
 import terrainBg from './assets/terrain-bg.webp'
-import eggImage from './assets/egg.webp'
+import nestImage from './assets/nest.webp'
+import eggOnlyImage from './assets/egg-only.webp'
 import './App.css'
 
 function randomSeed() {
@@ -476,6 +477,8 @@ function EggNest({ onHatch }) {
 
   return (
     <div className="egg-scene">
+      <img className="nest-layer" src={nestImage} alt="" aria-hidden="true" />
+
       <button
         type="button"
         className="egg-button"
@@ -485,7 +488,7 @@ function EggNest({ onHatch }) {
         <div
           key={shakeKey}
           className={`egg ${hatching ? 'egg--hatch' : 'egg--shake'}`}
-          style={{ backgroundImage: `url(${eggImage})` }}
+          style={{ backgroundImage: `url(${eggOnlyImage})` }}
         >
           {clicks >= 3 && <span className="egg-crack egg-crack--1" />}
           {clicks >= 6 && <span className="egg-crack egg-crack--2" />}
@@ -498,7 +501,6 @@ function EggNest({ onHatch }) {
           <span key={i} className={`egg-dot ${i < clicks ? 'egg-dot--filled' : ''}`} />
         ))}
       </div>
-      <p className="egg-hint">Toca el huevo para incubarlo</p>
     </div>
   )
 }
