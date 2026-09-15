@@ -471,37 +471,40 @@ function EggNest({ onHatch }) {
 
     if (next >= HATCH_CLICKS) {
       setHatching(true)
-      setTimeout(onHatch, 550)
+      setTimeout(onHatch, 620)
     }
   }
 
   return (
-    <div className="egg-scene">
-      <img className="nest-layer" src={nestImage} alt="" aria-hidden="true" />
+    <>
+      <div className={`hatch-backdrop ${hatching ? 'hatch-backdrop--active' : ''}`} aria-hidden="true" />
+      <div className={`egg-scene ${hatching ? 'egg-scene--hatching' : ''}`}>
+        <img className="nest-layer" src={nestImage} alt="" aria-hidden="true" />
 
-      <button
-        type="button"
-        className="egg-button"
-        onClick={handleClick}
-        aria-label="Toca el huevo para incubarlo"
-      >
-        <div
-          key={shakeKey}
-          className={`egg ${hatching ? 'egg--hatch' : 'egg--shake'}`}
-          style={{ backgroundImage: `url(${eggOnlyImage})` }}
+        <button
+          type="button"
+          className="egg-button"
+          onClick={handleClick}
+          aria-label="Toca el huevo para incubarlo"
         >
-          {clicks >= 3 && <span className="egg-crack egg-crack--1" />}
-          {clicks >= 6 && <span className="egg-crack egg-crack--2" />}
-          {clicks >= 9 && <span className="egg-crack egg-crack--3" />}
-        </div>
-      </button>
+          <div
+            key={shakeKey}
+            className={`egg ${hatching ? 'egg--hatch' : 'egg--shake'}`}
+            style={{ backgroundImage: `url(${eggOnlyImage})` }}
+          >
+            {clicks >= 3 && <span className="egg-crack egg-crack--1" />}
+            {clicks >= 6 && <span className="egg-crack egg-crack--2" />}
+            {clicks >= 9 && <span className="egg-crack egg-crack--3" />}
+          </div>
+        </button>
 
-      <div className="egg-progress" aria-hidden="true">
-        {Array.from({ length: HATCH_CLICKS }).map((_, i) => (
-          <span key={i} className={`egg-dot ${i < clicks ? 'egg-dot--filled' : ''}`} />
-        ))}
+        <div className="egg-progress" aria-hidden="true">
+          {Array.from({ length: HATCH_CLICKS }).map((_, i) => (
+            <span key={i} className={`egg-dot ${i < clicks ? 'egg-dot--filled' : ''}`} />
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
