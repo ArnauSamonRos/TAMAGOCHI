@@ -38,6 +38,8 @@ const HOP_DURATION_MAX = 620
 const IDLE_MIN = 120
 const IDLE_MAX = 420
 const MAX_TILT = 16
+const DRAG_LIFT = 20
+const DRAG_MOVE_THRESHOLD = 6
 
 const DUST_PARTICLES = [
   { dx: -48, dy: -8, size: 11, delay: 0 },
@@ -118,6 +120,7 @@ function BouncingBall({ onClick, confused, seed }) {
   const shadowRef = useRef(null)
   const dustRef = useRef(null)
   const pausedRef = useRef(confused)
+  const dragMovedRef = useRef(false)
 
   useEffect(() => {
     pausedRef.current = confused
@@ -159,7 +162,10 @@ function BouncingBall({ onClick, confused, seed }) {
       let bob = 0
       let arcHeight = 0
 
-      if (phase === 'idle') {
+      if (phase === 'drag') {
+        arcHeight = DRAG_LIFT
+        ball.className = 'ball'
+      } else if (phase === 'idle') {
         bob = Math.sin(elapsed / 190) * 1.5
         if (elapsed >= idleDuration && !pausedRef.current) {
           hopFrom = { x, y }
@@ -222,7 +228,71 @@ function BouncingBall({ onClick, confused, seed }) {
     }
 
     raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
+
+    let dragActive = false
+    let dragPointerId = null
+    let dragGrabDx = 0
+    let dragGrabDy = 0
+    let dragStartClientX = 0
+    let dragStartClientY = 0
+
+    const handlePointerDown = (e) => {
+      if (e.button !== undefined && e.button !== 0) return
+      dragActive = true
+      dragPointerId = e.pointerId
+      dragGrabDx = e.clientX - x
+      dragGrabDy = e.clientY - y
+      dragStartClientX = e.clientX
+      dragStartClientY = e.clientY
+      dragMovedRef.current = false
+      phase = 'drag'
+      wrap.setPointerCapture(e.pointerId)
+    }
+
+    const handlePointerMove = (e) => {
+      if (!dragActive || e.pointerId !== dragPointerId) return
+      const maxX = window.innerWidth - BALL_SIZE - EDGE_MARGIN
+      const maxY = window.innerHeight - BALL_SIZE - EDGE_MARGIN
+      const groundX = clamp(e.clientX - dragGrabDx, EDGE_MARGIN, maxX)
+      const groundY = clamp(e.clientY - dragGrabDy, EDGE_MARGIN, maxY)
+      tiltDeg = clamp((e.movementX || 0) * 1.4, -MAX_TILT, MAX_TILT)
+      x = groundX
+      y = groundY - DRAG_LIFT
+      if (Math.hypot(e.clientX - dragStartClientX, e.clientY - dragStartClientY) > DRAG_MOVE_THRESHOLD) {
+        dragMovedRef.current = true
+      }
+    }
+
+    const endDrag = (e) => {
+      if (!dragActive || e.pointerId !== dragPointerId) return
+      dragActive = false
+      if (wrap.hasPointerCapture?.(e.pointerId)) {
+        wrap.releasePointerCapture(e.pointerId)
+      }
+      y += DRAG_LIFT
+      phase = 'idle'
+      phaseStart = performance.now()
+      idleDuration = IDLE_MIN + Math.random() * (IDLE_MAX - IDLE_MIN)
+      tiltDeg = 0
+      ball.className = 'ball ball--land'
+      spawnDust(x + BALL_SIZE / 2, y + BALL_SIZE * 0.92)
+      setTimeout(() => {
+        if (ball) ball.className = 'ball'
+      }, 140)
+    }
+
+    wrap.addEventListener('pointerdown', handlePointerDown)
+    wrap.addEventListener('pointermove', handlePointerMove)
+    wrap.addEventListener('pointerup', endDrag)
+    wrap.addEventListener('pointercancel', endDrag)
+
+    return () => {
+      cancelAnimationFrame(raf)
+      wrap.removeEventListener('pointerdown', handlePointerDown)
+      wrap.removeEventListener('pointermove', handlePointerMove)
+      wrap.removeEventListener('pointerup', endDrag)
+      wrap.removeEventListener('pointercancel', endDrag)
+    }
   }, [])
 
   return (
@@ -250,7 +320,13 @@ function BouncingBall({ onClick, confused, seed }) {
         ref={wrapRef}
         type="button"
         className="ball-wrap"
-        onClick={onClick}
+        onClick={(e) => {
+          if (dragMovedRef.current) {
+            dragMovedRef.current = false
+            return
+          }
+          onClick?.(e)
+        }}
         aria-label="Ver estadísticas"
       >
         <div ref={tiltRef} className="ball-tilt">
