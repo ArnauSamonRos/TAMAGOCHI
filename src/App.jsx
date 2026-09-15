@@ -26,6 +26,42 @@ function TerrainBackground() {
   return <div className="terrain-bg" style={{ backgroundImage: `url(${terrainBg})` }} aria-hidden="true" />
 }
 
+function buildSpiralPath(turns = 2.4, steps = 48, maxR = 10) {
+  let d = ''
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps
+    const theta = t * Math.PI * 2 * turns
+    const r = t * maxR
+    const x = 12 + r * Math.cos(theta)
+    const y = 12 + r * Math.sin(theta)
+    d += `${i === 0 ? 'M' : 'L'}${x.toFixed(2)},${y.toFixed(2)} `
+  }
+  return d.trim()
+}
+
+const SPIRAL_PATH = buildSpiralPath()
+
+function DizzyEyes() {
+  return (
+    <div className="dizzy-eyes" aria-hidden="true">
+      <span className="dizzy-eye dizzy-eye--left">
+        <span className="dizzy-eye-spin">
+          <svg viewBox="0 0 24 24" width="100%" height="100%">
+            <path d={SPIRAL_PATH} fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+          </svg>
+        </span>
+      </span>
+      <span className="dizzy-eye dizzy-eye--right">
+        <span className="dizzy-eye-spin">
+          <svg viewBox="0 0 24 24" width="100%" height="100%">
+            <path d={SPIRAL_PATH} fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+          </svg>
+        </span>
+      </span>
+    </div>
+  )
+}
+
 const BALL_SIZE = 128
 const EDGE_MARGIN = 16
 const OBSTACLE_PADDING = 16
@@ -40,6 +76,9 @@ const IDLE_MAX = 420
 const MAX_TILT = 16
 const DRAG_LIFT = 20
 const DRAG_MOVE_THRESHOLD = 6
+const DIZZY_SPIN_THRESHOLD = Math.PI * 5
+const DIZZY_SPEED_THRESHOLD = 1.1
+const DIZZY_DURATION = 2800
 
 const DUST_PARTICLES = [
   { dx: -48, dy: -8, size: 11, delay: 0 },
@@ -121,10 +160,14 @@ function BouncingBall({ onClick, confused, seed }) {
   const dustRef = useRef(null)
   const pausedRef = useRef(confused)
   const dragMovedRef = useRef(false)
+  const [dizzy, setDizzy] = useState(false)
+  const dizzyTimeoutRef = useRef(null)
 
   useEffect(() => {
-    pausedRef.current = confused
-  }, [confused])
+    pausedRef.current = confused || dizzy
+  }, [confused, dizzy])
+
+  useEffect(() => () => clearTimeout(dizzyTimeoutRef.current), [])
 
   useEffect(() => {
     const wrap = wrapRef.current
@@ -235,6 +278,12 @@ function BouncingBall({ onClick, confused, seed }) {
     let dragGrabDy = 0
     let dragStartClientX = 0
     let dragStartClientY = 0
+    let dragStartTime = 0
+    let dragPathLen = 0
+    let dragSpinAccum = 0
+    let dragHasLastVec = false
+    let dragLastVecX = 0
+    let dragLastVecY = 0
 
     const handlePointerDown = (e) => {
       if (e.button !== undefined && e.button !== 0) return
@@ -244,6 +293,10 @@ function BouncingBall({ onClick, confused, seed }) {
       dragGrabDy = e.clientY - y
       dragStartClientX = e.clientX
       dragStartClientY = e.clientY
+      dragStartTime = performance.now()
+      dragPathLen = 0
+      dragSpinAccum = 0
+      dragHasLastVec = false
       dragMovedRef.current = false
       phase = 'drag'
       wrap.setPointerCapture(e.pointerId)
@@ -260,6 +313,24 @@ function BouncingBall({ onClick, confused, seed }) {
       y = groundY - DRAG_LIFT
       if (Math.hypot(e.clientX - dragStartClientX, e.clientY - dragStartClientY) > DRAG_MOVE_THRESHOLD) {
         dragMovedRef.current = true
+      }
+
+      const vecX = e.movementX || 0
+      const vecY = e.movementY || 0
+      const dist = Math.hypot(vecX, vecY)
+      dragPathLen += dist
+      if (dragHasLastVec && dist > 0.5 && Math.hypot(dragLastVecX, dragLastVecY) > 0.5) {
+        const angle1 = Math.atan2(dragLastVecY, dragLastVecX)
+        const angle2 = Math.atan2(vecY, vecX)
+        let delta = angle2 - angle1
+        while (delta > Math.PI) delta -= Math.PI * 2
+        while (delta < -Math.PI) delta += Math.PI * 2
+        dragSpinAccum += Math.abs(delta)
+      }
+      if (dist > 0.5) {
+        dragLastVecX = vecX
+        dragLastVecY = vecY
+        dragHasLastVec = true
       }
     }
 
@@ -279,6 +350,14 @@ function BouncingBall({ onClick, confused, seed }) {
       setTimeout(() => {
         if (ball) ball.className = 'ball'
       }, 140)
+
+      const dragElapsed = Math.max(performance.now() - dragStartTime, 1)
+      const avgSpeed = dragPathLen / dragElapsed
+      if (dragSpinAccum > DIZZY_SPIN_THRESHOLD && avgSpeed > DIZZY_SPEED_THRESHOLD) {
+        setDizzy(true)
+        clearTimeout(dizzyTimeoutRef.current)
+        dizzyTimeoutRef.current = setTimeout(() => setDizzy(false), DIZZY_DURATION)
+      }
     }
 
     wrap.addEventListener('pointerdown', handlePointerDown)
@@ -336,6 +415,7 @@ function BouncingBall({ onClick, confused, seed }) {
               expression={confused ? unsure : undefined}
               className="blob-figure"
             />
+            {dizzy && <DizzyEyes />}
           </div>
         </div>
       </button>
